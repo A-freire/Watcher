@@ -8,14 +8,12 @@
 import SwiftUI
 
 struct ContentView: View {
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView {
+//            SettingsView(config: )
+            SettingsView(config: Config(Radarr: ServiceConfig(apiKey: "", url: ""), Sabnzbd: ServiceConfig(apiKey: "", url: ""), Sonarr: ServiceConfig(apiKey: "", url: "")))
         }
-        .padding()
     }
 }
 
