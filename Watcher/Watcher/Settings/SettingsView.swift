@@ -8,132 +8,61 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @State var config: Config
-    @State var pickFile: Bool = false
-    @State var isLocked: Bool = false
+    @EnvironmentObject var vm: SettingsVM
     
     var body: some View {
         VStack {
             VStack(alignment: .leading, spacing: 10){
                 Section("Radarr"){
-                    TextField("Api key", text: $config.Radarr.apiKey)
-                    TextField("Url", text: $config.Radarr.url)
+                    TextField("Api key", text: $vm.config.Radarr.apiKey)
+                    TextField("Url", text: $vm.config.Radarr.url)
                 }
                 Section("Sabnzbd"){
-                    TextField("Api key", text: $config.Sabnzbd.apiKey)
-                    TextField("Url", text: $config.Sabnzbd.url)
+                    TextField("Api key", text: $vm.config.Sabnzbd.apiKey)
+                    TextField("Url", text: $vm.config.Sabnzbd.url)
                 }
                 Section("Sonarr"){
-                    TextField("Api key", text: $config.Sonarr.apiKey)
-                    TextField("Url", text: $config.Sonarr.url)
+                    TextField("Api key", text: $vm.config.Sonarr.apiKey)
+                    TextField("Url", text: $vm.config.Sonarr.url)
                 }
             }
             .padding()
             
             VStack {
                 HStack {
-                    OptionsView(image: isLocked ? "lock" : "lock.open", text: "Save")
+                    OptionsView(image: vm.isLocked ? "lock" : "lock.open", text: "Save")
                         .onTapGesture {
-                            saveConfigToUserDefaults()
+                            vm.saveConfigToUserDefaults()
                         }
                     OptionsView(image: "trash", text: "Delete")
                         .onTapGesture {
-                            deleteAll()
+                            vm.deleteAll()
                         }
                 }
                 HStack {
                     OptionsView(image: "square.and.arrow.down", text: "Download")
                         .onTapGesture {
-                            pickFile.toggle()
+                            vm.pickFile.toggle()
                         }
                     OptionsView(image: "square.and.arrow.up", text: "Upload")
                         .onTapGesture {
-                            downloadConfigAsJSON()
+                            vm.downloadConfigAsJSON()
                         }
                 }
             }
             .padding()
         }
-        .onAppear(perform: {
-            loadConfigFromUserDefaults()
-        })
-        .fileImporter(isPresented: $pickFile, allowedContentTypes: [.json]) { result in
+        .fileImporter(isPresented: $vm.pickFile, allowedContentTypes: [.json]) { result in
             switch result {
             case .success(let fileURL):
                 print(fileURL.absoluteString)
-                parseConfig(from: fileURL)
+                vm.parseConfig(from: fileURL)
 
             case .failure(let error):
                 print(error)
             }
         }
     }
-
-    func parseConfig(from fileURL: URL) {
-        guard fileURL.startAccessingSecurityScopedResource() else { return }
-        defer { fileURL.stopAccessingSecurityScopedResource() }
-
-        do {
-            // Lire le contenu du fichier
-            let data = try Data(contentsOf: fileURL)
-            // Décoder le JSON en structure Swift
-            let config = try JSONDecoder().decode(Config.self, from: data)
-            self.config = config
-        } catch {
-            print("Erreur lors de la lecture ou du parsing du JSON : \(error)")
-            return
-        }
-    }
-    
-    func saveConfigToUserDefaults() {
-        do {
-            let data = try JSONEncoder().encode(config)
-            UserDefaults.standard.set(data, forKey: "ConfigData")
-            withAnimation {
-                isLocked.toggle()
-            }
-        } catch {
-            print("Erreur lors de l'encodage de la configuration: \(error)")
-        }
-    }
-    
-    func loadConfigFromUserDefaults() {
-        guard let data = UserDefaults.standard.data(forKey: "ConfigData") else { return }
-        do {
-            config = try JSONDecoder().decode(Config.self, from: data)
-            isLocked.toggle()
-        } catch {
-            print("Erreur lors du décodage de la configuration: \(error)")
-        }
-    }
-    
-    func deleteAll() {
-        config = Config(Radarr: ServiceConfig(apiKey: "", url: ""), Sabnzbd: ServiceConfig(apiKey: "", url: ""), Sonarr: ServiceConfig(apiKey: "", url: ""))
-        isLocked.toggle()
-        UserDefaults.standard.removeObject(forKey: "ConfigData")
-    }
-
-    func downloadConfigAsJSON(fileName: String = "config.json") {
-            do {
-                let jsonData = try JSONEncoder().encode(config)
-                let jsonString = String(data: jsonData, encoding: .utf8) ?? ""
-                
-                // Création de l'URL temporaire
-                let tempDirectory = FileManager.default.temporaryDirectory
-                let fileURL = tempDirectory.appendingPathComponent(fileName)
-                
-                // Écriture du fichier JSON
-                try jsonString.write(to: fileURL, atomically: true, encoding: .utf8)
-                
-                // Présentation de la feuille de partage pour télécharger
-                let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
-                if let topController = UIApplication.shared.windows.first?.rootViewController {
-                    topController.present(activityVC, animated: true, completion: nil)
-                }
-            } catch {
-                print("Erreur lors de la création du fichier JSON: \(error)")
-            }
-        }
 }
 
 struct OptionsView: View {
@@ -163,5 +92,5 @@ struct OptionsView: View {
 
 
 #Preview {
-    SettingsView(config: Config(Radarr: ServiceConfig(apiKey: "", url: ""), Sabnzbd: ServiceConfig(apiKey: "", url: ""), Sonarr: ServiceConfig(apiKey: "", url: "")))
+    SettingsView()
 }

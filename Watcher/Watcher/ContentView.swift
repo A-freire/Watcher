@@ -8,12 +8,33 @@
 import SwiftUI
 
 struct ContentView: View {
-    
+    @StateObject var settingsVM: SettingsVM = SettingsVM()
+
     var body: some View {
         TabView {
-//            SettingsView(config: )
-            SettingsView(config: Config(Radarr: ServiceConfig(apiKey: "", url: ""), Sabnzbd: ServiceConfig(apiKey: "", url: ""), Sonarr: ServiceConfig(apiKey: "", url: "")))
+            if settingsVM.isLocked {
+                Tab("Movies", systemImage: "movieclapper") {
+                        
+                }
+                Tab("Series", systemImage: "film") {
+                        
+                }
+                Tab("Search", systemImage: "magnifyingglass") {
+                        
+                }
+                Tab("Broken", systemImage: "exclamationmark.octagon") {
+                    
+                }
+            }
+            
+            Tab("Settings", systemImage: "gearshape") {
+                SettingsView()
+                    .environmentObject(settingsVM)
+            }
         }
+        .onAppear(perform: {
+            settingsVM.loadConfigFromUserDefaults()
+        })
     }
 }
 
