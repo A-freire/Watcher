@@ -13,6 +13,8 @@ class SettingsVM: ObservableObject {
     @Published var pickFile: Bool = false
     @Published var isLocked: Bool = false
     
+    private let userDefaultsKey = "ConfigData"
+
     init() {
         self.config =  Config(Radarr: ServiceConfig(apiKey: "", url: ""), Sabnzbd: ServiceConfig(apiKey: "", url: ""), Sonarr: ServiceConfig(apiKey: "", url: ""))
     }
@@ -37,7 +39,7 @@ class SettingsVM: ObservableObject {
         guard !config.isEmpty, !isLocked else { return }
         do {
             let data = try JSONEncoder().encode(config)
-            UserDefaults.standard.set(data, forKey: "ConfigData")
+            UserDefaults.standard.set(data, forKey: userDefaultsKey)
             withAnimation {
                 isLocked.toggle()
             }
@@ -47,7 +49,7 @@ class SettingsVM: ObservableObject {
     }
     
     func loadConfigFromUserDefaults() {
-        guard let data = UserDefaults.standard.data(forKey: "ConfigData") else { return }
+        guard let data = UserDefaults.standard.data(forKey: userDefaultsKey) else { return }
         do {
             config = try JSONDecoder().decode(Config.self, from: data)
             isLocked.toggle()
@@ -59,7 +61,7 @@ class SettingsVM: ObservableObject {
     func deleteAll() {
         config = Config(Radarr: ServiceConfig(apiKey: "", url: ""), Sabnzbd: ServiceConfig(apiKey: "", url: ""), Sonarr: ServiceConfig(apiKey: "", url: ""))
         isLocked.toggle()
-        UserDefaults.standard.removeObject(forKey: "ConfigData")
+        UserDefaults.standard.removeObject(forKey: userDefaultsKey)
     }
 
     func downloadConfigAsJSON(fileName: String = "config.json") {
@@ -85,6 +87,6 @@ class SettingsVM: ObservableObject {
     }
     
     func isSet() -> Bool {
-        UserDefaults.standard.data(forKey: "ConfigData") != nil
+        UserDefaults.standard.data(forKey: userDefaultsKey) != nil
     }
 }

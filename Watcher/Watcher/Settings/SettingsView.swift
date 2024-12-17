@@ -81,16 +81,3 @@ struct OptionsView: View {
         .frame(width: 126, height: 42)
     }
 }
-
-
-
-
-
-
-
-
-
-
-#Preview {
-    SettingsView()
-}
