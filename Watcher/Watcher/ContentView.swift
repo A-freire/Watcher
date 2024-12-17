@@ -14,9 +14,9 @@ struct ContentView: View {
         TabView {
             if settingsVM.isLocked {
                 Tab("Movies", systemImage: "movieclapper") {
-                        
+                    MoviesView()
                 }
-                Tab("Series", systemImage: "film") {
+                Tab("Shows", systemImage: "film") {
                         
                 }
                 Tab("Search", systemImage: "magnifyingglass") {
