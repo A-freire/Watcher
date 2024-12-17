@@ -30,7 +30,7 @@ struct SettingsView: View {
             
             VStack {
                 HStack {
-                    OptionsView(image: vm.isLocked ? "lock" : "lock.open", text: "Save")
+                    OptionsView(image: vm.isLocked ? "lock" : "lock.open", text: vm.isLocked ? "Saved" : "Save")
                         .onTapGesture {
                             vm.saveConfigToUserDefaults()
                         }

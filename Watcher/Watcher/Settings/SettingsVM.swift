@@ -34,7 +34,7 @@ class SettingsVM: ObservableObject {
     }
     
     func saveConfigToUserDefaults() {
-        guard !config.isEmpty else { return }
+        guard !config.isEmpty, !isLocked else { return }
         do {
             let data = try JSONEncoder().encode(config)
             UserDefaults.standard.set(data, forKey: "ConfigData")
