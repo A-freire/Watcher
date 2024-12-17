@@ -9,16 +9,12 @@ import SwiftUI
 
 struct MoviesView: View {
     let mashaArray = Array(repeating: "Masha", count: 100)
-    let columns = [
-            GridItem(.flexible()),
-            GridItem(.flexible()),
-            GridItem(.flexible())
-        ]
+    @ObservedObject var gsManager = GridSizeManager()
     @State var search: String = ""
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVGrid(columns: columns) {
+                LazyVGrid(columns: gsManager.selectedSize.gridItems) {
                     ForEach(mashaArray.indices, id: \.self) { index in
                         MovieCardView(name: mashaArray[index])
                     }
@@ -26,7 +22,17 @@ struct MoviesView: View {
             }
             .searchable(text: $search, prompt: "Search")
             .toolbar {
-                
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Image(systemName: gsManager.selectedSize.gridImage)
+                            .onTapGesture {
+                                gsManager.changeColumns()
+                            }
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Text("2259 GB left")
+                }
             }
         }
     }
@@ -59,7 +65,7 @@ struct MovieSheetView: View {
                 .scaledToFit()
                 .overlay(alignment: .bottom) {
                     ZStack(alignment: .bottom) {
-                        LinearGradient(colors: [.black, .clear], startPoint: .bottom, endPoint: .center)
+                        LinearGradient(colors: [.gray.opacity(0.2), .clear], startPoint: .bottom, endPoint: .center)
                         Text("American Pie presente : No limit !")
                             .font(.system(size: 42))
                     }
@@ -73,13 +79,12 @@ struct MovieSheetView: View {
                 }
                 Text("Genre:"+" Animation, Adventure, Comedy, Science Fiction, Action, Romance, Crime, Thriller")
                 Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit felis est, sed volutpat dui viverra quis. Aliquam mollis nisl ante, eget ultrices diam convallis a. Nam lorem enim, laoreet id porttitor ut, pellentesque a velit. Sed sit amet ipsum tempus, luctus ante ut, scelerisque orci. Aliquam posuere nunc sagittis.")
-                Spacer()
             }
             .padding(.horizontal)
+            Spacer()
         }
     }
 }
-
 
 struct DotStatus: View {
 
