@@ -11,6 +11,8 @@ struct MoviesView: View {
     let mashaArray = Array(repeating: "Masha", count: 100)
     @ObservedObject var gsManager = GridSizeManager()
     @State var search: String = ""
+    @State var eraseMode: Bool = false
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -22,6 +24,14 @@ struct MoviesView: View {
             }
             .searchable(text: $search, prompt: "Search")
             .toolbar {
+                //TODO: eraseMode
+                ToolbarItem(placement: .topBarTrailing) {
+                    Image(systemName: "trash")
+                        .foregroundStyle(eraseMode ? .red : .white)
+                        .onTapGesture {
+                            eraseMode.toggle()
+                        }
+                }
                 if UIDevice.current.userInterfaceIdiom == .pad {
                     ToolbarItem(placement: .topBarTrailing) {
                         Image(systemName: gsManager.selectedSize.gridImage)
@@ -41,6 +51,7 @@ struct MoviesView: View {
 struct MovieCardView: View {
     let name: String
     @State var isPresented: Bool = false
+
     var body: some View {
         VStack {
             Image(name)
@@ -48,7 +59,9 @@ struct MovieCardView: View {
                 .scaledToFit()
         }
         .onTapGesture {
-            isPresented.toggle()
+            withAnimation {
+                isPresented.toggle()
+            }
         }
         .sheet(isPresented: $isPresented) {
             MovieSheetView()
