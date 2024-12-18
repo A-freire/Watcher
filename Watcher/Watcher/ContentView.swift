@@ -17,7 +17,7 @@ struct ContentView: View {
                     MoviesView()
                 }
                 Tab("Shows", systemImage: "film") {
-                        
+                    ShowsView()
                 }
                 Tab("Search", systemImage: "magnifyingglass") {
                         
