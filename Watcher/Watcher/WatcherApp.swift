@@ -13,6 +13,7 @@ struct WatcherApp: App {
         WindowGroup {
             ContentView()
                 .preferredColorScheme(.dark)
+                .scrollIndicators(.hidden)
         }
     }
 }

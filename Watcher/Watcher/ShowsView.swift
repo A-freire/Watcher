@@ -107,7 +107,8 @@ struct ShowSheetView: View {
             List(0..<10) { i in
                 ShowEpSeasonView(index: i)
             }
-            .listStyle(.grouped)
+            .listStyle(.plain)
+            .scrollIndicators(.hidden)
         }
     }
 }
