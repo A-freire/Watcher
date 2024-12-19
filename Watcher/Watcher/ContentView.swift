@@ -20,7 +20,7 @@ struct ContentView: View {
                     ShowsView()
                 }
                 Tab("Search", systemImage: "magnifyingglass") {
-                        
+                    SearchView()
                 }
                 Tab("Broken", systemImage: "exclamationmark.octagon") {
                     
