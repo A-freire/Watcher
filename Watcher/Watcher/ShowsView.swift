@@ -78,7 +78,7 @@ struct ShowSheetView: View {
         VStack {
             Image("wild")
                 .resizable()
-                .scaledToFit()
+                .aspectRatio(contentMode: UIDevice.current.userInterfaceIdiom == .pad ? .fill : .fit)
                 .overlay(alignment: .bottom) {
                     ZStack(alignment: .bottom) {
                         LinearGradient(colors: [.gray.opacity(0.2), .clear], startPoint: .bottom, endPoint: .center)
