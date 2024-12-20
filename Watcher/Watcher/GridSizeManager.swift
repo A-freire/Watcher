@@ -15,14 +15,15 @@ class GridSizeManager: ObservableObject {
         }
     }
 
-    private let userDefaultsKey = "GridSizeKey"
+    private var userDefaultsKey: String
 
-    init() {
+    init(userDefaultsKey: String) {
+        self.userDefaultsKey = userDefaultsKey
         if let savedSize = UserDefaults.standard.string(forKey: userDefaultsKey),
            let size = Size(rawValue: savedSize) {
             self.selectedSize = size
         } else {
-            self.selectedSize = .medium
+            self.selectedSize = .small
         }
     }
 

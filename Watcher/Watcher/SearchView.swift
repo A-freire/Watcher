@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SearchView: View {
+    @ObservedObject var gsm = GridSizeManager(userDefaultsKey: "SearchGrid")
+
     @State var search: String = ""
     var body: some View {
         NavigationStack {

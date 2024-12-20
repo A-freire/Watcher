@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ShowsView: View {
     let mashaArray = Array(repeating: "Masha", count: 100)
-    @ObservedObject var gsManager = GridSizeManager()
+    @ObservedObject var gsManager = GridSizeManager(userDefaultsKey: "ShowsGrid")
     @State var search: String = ""
     @State var eraseMode: Bool = false
 
