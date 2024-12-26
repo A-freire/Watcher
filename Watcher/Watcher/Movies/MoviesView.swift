@@ -6,30 +6,43 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct MoviesView: View {
     let mashaArray = Array(repeating: "Masha", count: 100)
     @ObservedObject var gsManager = GridSizeManager(userDefaultsKey: "MoviesGrid")
-    @State var search: String = ""
-    @State var eraseMode: Bool = false
+    @ObservedObject var vm: MoviesVM
+    
+    
+
+    init(serviceConfig: ServiceConfig) {
+        self.vm = MoviesVM(radarr: serviceConfig)
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 LazyVGrid(columns: gsManager.selectedSize.gridItems) {
-                    ForEach(mashaArray.indices, id: \.self) { index in
-                        MovieCardView(name: mashaArray[index])
+                    ForEach(vm.movies, id: \.self) { movie in
+                        MovieCardView(movie: movie)
                     }
                 }
             }
-            .searchable(text: $search, prompt: "Search")
+            .onAppear(perform: {
+                vm.fetchMovies()
+                vm.getSizeLeft()
+            })
+            .refreshable {
+                vm.fetchMovies()
+            }
+            .searchable(text: $vm.search, prompt: "Search")
             .toolbar {
                 //TODO: eraseMode
                 ToolbarItem(placement: .topBarTrailing) {
                     Image(systemName: "trash")
-                        .foregroundStyle(eraseMode ? .red : .white)
+                        .foregroundStyle(vm.eraseMode ? .red : .white)
                         .onTapGesture {
-                            eraseMode.toggle()
+                            vm.eraseMode.toggle()
                         }
                 }
                 if UIDevice.current.userInterfaceIdiom == .pad {
@@ -41,7 +54,10 @@ struct MoviesView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Text("2259 GB left")
+                    Text("\(vm.spaceLeft) GB left")
+                        .onTapGesture {
+                            vm.getSizeLeft()
+                        }
                 }
             }
         }
@@ -49,12 +65,12 @@ struct MoviesView: View {
 }
 
 struct MovieCardView: View {
-    let name: String
+    let movie: Movie
     @State var isPresented: Bool = false
 
     var body: some View {
         VStack {
-            Image(name)
+            KFImage(movie.getPoster)
                 .resizable()
                 .scaledToFit()
         }
@@ -64,34 +80,36 @@ struct MovieCardView: View {
             }
         }
         .sheet(isPresented: $isPresented) {
-            MovieSheetView()
+            MovieSheetView(movie: movie)
         }
     }
 }
 
 struct MovieSheetView: View {
-    
+    let movie: Movie
+
     var body: some View {
         VStack {
-            Image("wild")
+            KFImage(movie.getFanArt)
                 .resizable()
                 .scaledToFit()
                 .overlay(alignment: .bottom) {
                     ZStack(alignment: .bottom) {
-                        LinearGradient(colors: [.gray.opacity(0.2), .clear], startPoint: .bottom, endPoint: .center)
-                        Text("American Pie presente : No limit !")
-                            .font(.system(size: 42))
+                        LinearGradient(colors: [Color.colorFromHex("1C1C1E"), .clear], startPoint: .bottom, endPoint: .center)
+                        Text(movie.getTitle)
+                            .font(.system(size: 33))
+                            .padding(.horizontal)
                     }
                 }
             VStack(alignment:.leading, spacing: 12) {
                 HStack {
-                    Text("Duree: 1h42")
+                    Text(movie.getDuree)
                     Spacer()
                     Text("Downloaded")
                     DotStatus()
                 }
-                Text("Genre:"+" Animation, Adventure, Comedy, Science Fiction, Action, Romance, Crime, Thriller")
-                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit felis est, sed volutpat dui viverra quis. Aliquam mollis nisl ante, eget ultrices diam convallis a. Nam lorem enim, laoreet id porttitor ut, pellentesque a velit. Sed sit amet ipsum tempus, luctus ante ut, scelerisque orci. Aliquam posuere nunc sagittis.")
+                Text(movie.getStringGenre)
+                Text(movie.getOverview)
             }
             .padding(.horizontal)
             Spacer()

@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+//reflichir a mettre le hide scrollbar partout dans view et dans les sheet
 struct ContentView: View {
     @StateObject var settingsVM: SettingsVM = SettingsVM()
 
@@ -14,7 +14,7 @@ struct ContentView: View {
         TabView {
             if settingsVM.isLocked {
                 Tab("Movies", systemImage: "movieclapper") {
-                    MoviesView()
+                    MoviesView(serviceConfig: settingsVM.config.Radarr)
                 }
                 Tab("Shows", systemImage: "film") {
                     ShowsView()
