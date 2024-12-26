@@ -22,9 +22,6 @@ struct ContentView: View {
                 Tab("Search", systemImage: "magnifyingglass") {
                     SearchView()
                 }
-                Tab("Broken", systemImage: "exclamationmark.octagon") {
-                    
-                }
             }
             
             Tab("Settings", systemImage: "gearshape") {

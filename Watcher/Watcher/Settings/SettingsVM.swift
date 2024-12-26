@@ -85,8 +85,4 @@ class SettingsVM: ObservableObject {
             print("Erreur lors de la création du fichier JSON: \(error)")
         }
     }
-    
-    func isSet() -> Bool {
-        UserDefaults.standard.data(forKey: userDefaultsKey) != nil
-    }
 }
