@@ -64,7 +64,7 @@ class SettingsVM: ObservableObject {
         UserDefaults.standard.removeObject(forKey: userDefaultsKey)
     }
 
-    func downloadConfigAsJSON(fileName: String = "config.json") {
+    @MainActor func downloadConfigAsJSON(fileName: String = "config.json") {
         do {
             let jsonData = try JSONEncoder().encode(config)
             let jsonString = String(data: jsonData, encoding: .utf8) ?? ""
