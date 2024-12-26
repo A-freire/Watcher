@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		FC342FCB2D1C349100045E23 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = FC342FCA2D1C349100045E23 /* Kingfisher */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		FC9326C92D0E2EAD00D8B84D /* Watcher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Watcher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FC342FCB2D1C349100045E23 /* Kingfisher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = Watcher;
 			packageProductDependencies = (
+				FC342FCA2D1C349100045E23 /* Kingfisher */,
 			);
 			productName = Watcher;
 			productReference = FC9326C92D0E2EAD00D8B84D /* Watcher.app */;
@@ -107,6 +113,9 @@
 			);
 			mainGroup = FC9326C02D0E2EAD00D8B84D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				FC342FC92D1C349100045E23 /* XCLocalSwiftPackageReference "../../Kingfisher" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FC9326CA2D0E2EAD00D8B84D /* Products */;
 			projectDirPath = "";
@@ -287,7 +296,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
@@ -328,7 +337,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				XROS_DEPLOYMENT_TARGET = 2.2;
 			};
@@ -356,6 +365,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		FC342FC92D1C349100045E23 /* XCLocalSwiftPackageReference "../../Kingfisher" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../Kingfisher;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FC342FCA2D1C349100045E23 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Kingfisher;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FC9326C12D0E2EAD00D8B84D /* Project object */;
 }
