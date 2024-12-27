@@ -23,7 +23,7 @@ struct MoviesView: View {
         NavigationStack {
             ScrollView {
                 LazyVGrid(columns: gsManager.selectedSize.gridItems) {
-                    ForEach(vm.movies, id: \.self) { movie in
+                    ForEach(vm.searchedMovies, id: \.self) { movie in
                         MovieCardView(movie: movie, status: vm.getMovieStatus(id: movie.getId), eraseMode: $vm.eraseMode)
                             .simultaneousGesture(TapGesture().onEnded({ _ in
                                 vm.modifyDelete(id: movie.id)

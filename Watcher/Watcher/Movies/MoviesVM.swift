@@ -18,6 +18,18 @@ class MoviesVM: ObservableObject {
     
     private var radarr: ServiceConfig
     
+    var searchedMovies: [Movie] {
+        guard !search.isEmpty else { return movies }
+        return movies.filter { movie in
+            if movie.getTitle.contains(search) {
+                return true
+            } else if movie.getAlternateTitles.contains(where: { $0.getTitle.contains(search) }) {
+                return true
+            }
+            return false
+        }
+    }
+    
     func isSelected(id: Int) -> Bool {
         eraseMode && delete.contains(id)
     }
