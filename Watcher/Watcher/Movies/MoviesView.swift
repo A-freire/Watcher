@@ -24,16 +24,16 @@ struct MoviesView: View {
             ScrollView {
                 LazyVGrid(columns: gsManager.selectedSize.gridItems) {
                     ForEach(vm.movies, id: \.self) { movie in
-                        MovieCardView(movie: movie)
+                        MovieCardView(movie: movie, status: vm.getMovieStatus(id: movie.getId))
                     }
                 }
             }
             .onAppear(perform: {
-                vm.fetchMovies()
+                vm.fetchInit()
                 vm.getSizeLeft()
             })
             .refreshable {
-                vm.fetchMovies()
+                vm.fetchInit()
             }
             .searchable(text: $vm.search, prompt: "Search")
             .toolbar {
@@ -66,6 +66,7 @@ struct MoviesView: View {
 
 struct MovieCardView: View {
     let movie: Movie
+    let status: Status
     @State var isPresented: Bool = false
 
     var body: some View {
@@ -73,6 +74,10 @@ struct MovieCardView: View {
             KFImage(movie.getPoster)
                 .resizable()
                 .scaledToFit()
+                .overlay(alignment: .bottomTrailing) {
+                    DotStatus(color: status.color)
+                        .padding(2)
+                }
         }
         .onTapGesture {
             withAnimation {
@@ -80,13 +85,14 @@ struct MovieCardView: View {
             }
         }
         .sheet(isPresented: $isPresented) {
-            MovieSheetView(movie: movie)
+            MovieSheetView(movie: movie, status: status)
         }
     }
 }
 
 struct MovieSheetView: View {
     let movie: Movie
+    let status: Status
 
     var body: some View {
         VStack {
@@ -105,8 +111,8 @@ struct MovieSheetView: View {
                 HStack {
                     Text(movie.getDuree)
                     Spacer()
-                    Text("Downloaded")
-                    DotStatus()
+                    Text(status.name)
+                    DotStatus(color: status.color)
                 }
                 Text(movie.getStringGenre)
                 Text(movie.getOverview)
@@ -118,10 +124,10 @@ struct MovieSheetView: View {
 }
 
 struct DotStatus: View {
-
+    let color: Color
     var body: some View {
         Circle()
-            .fill(.yellow)
+            .fill(color)
             .strokeBorder(.black, lineWidth: 3)
             .frame(width: 21, height: 21)
     }
