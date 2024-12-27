@@ -24,7 +24,11 @@ struct MoviesView: View {
             ScrollView {
                 LazyVGrid(columns: gsManager.selectedSize.gridItems) {
                     ForEach(vm.movies, id: \.self) { movie in
-                        MovieCardView(movie: movie, status: vm.getMovieStatus(id: movie.getId))
+                        MovieCardView(movie: movie, status: vm.getMovieStatus(id: movie.getId), eraseMode: $vm.eraseMode)
+                            .simultaneousGesture(TapGesture().onEnded({ _ in
+                                vm.modifyDelete(id: movie.id)
+                            }), isEnabled: vm.eraseMode)
+                            .border(vm.isSelected(id: movie.getId) ? .red : .clear, width: 10)
                     }
                 }
             }
@@ -37,12 +41,11 @@ struct MoviesView: View {
             }
             .searchable(text: $vm.search, prompt: "Search")
             .toolbar {
-                //TODO: eraseMode
                 ToolbarItem(placement: .topBarTrailing) {
                     Image(systemName: "trash")
                         .foregroundStyle(vm.eraseMode ? .red : .white)
                         .onTapGesture {
-                            vm.eraseMode.toggle()
+                            vm.manageDelete()
                         }
                 }
                 if UIDevice.current.userInterfaceIdiom == .pad {
@@ -60,6 +63,10 @@ struct MoviesView: View {
                         }
                 }
             }
+            .alert("Confirm delete all selected movies ?", isPresented: $vm.confirmErase, actions: {
+                Button("OK", role: .destructive) { vm.deleteAll() }
+                Button("Cancel", role: .cancel) { vm.freeDelete() }
+            })
         }
     }
 }
@@ -67,6 +74,7 @@ struct MoviesView: View {
 struct MovieCardView: View {
     let movie: Movie
     let status: Status
+    @Binding var eraseMode: Bool
     @State var isPresented: Bool = false
 
     var body: some View {
@@ -80,8 +88,10 @@ struct MovieCardView: View {
                 }
         }
         .onTapGesture {
-            withAnimation {
-                isPresented.toggle()
+            if !eraseMode {
+                withAnimation {
+                    isPresented.toggle()
+                }
             }
         }
         .sheet(isPresented: $isPresented) {

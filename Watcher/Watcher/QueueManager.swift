@@ -17,7 +17,7 @@ actor QueueManager {
     func getQueue(config: ServiceConfig) {
         guard !config.isEmpty else { return }
         
-        var request = URLRequest(url: URL(string: "\(config.url)/api/v3/rootfolder")!)
+        var request = URLRequest(url: URL(string: "\(config.url)/api/v3/queue")!)
         request.addValue(config.apiKey, forHTTPHeaderField: "Authorization")
         Task {
             do {
@@ -28,6 +28,31 @@ actor QueueManager {
                 let list = try JSONDecoder().decode(Queue.self, from: data)
                 
                 queue = list.getRecords
+            } catch {
+                return
+            }
+        }
+    }
+    
+    @MainActor func deleteFromQueue(config: ServiceConfig, ids: [Int]) {
+        guard !config.isEmpty else { return }
+        
+        var request = URLRequest(url: URL(string: "\(config.url)/api/v3/queue/bulk")!)
+        request.httpMethod = "DELETE"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue(config.apiKey, forHTTPHeaderField: "Authorization")
+        do {
+            let jsonData = try JSONEncoder().encode(ids)
+            request.httpBody = jsonData
+        } catch {
+            print("Failed to encode JSON: \(error)")
+            return
+        }
+        Task {
+            do {
+                let (_, response) = try await URLSession.shared.data(for: request)
+                
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { return }
             } catch {
                 return
             }
