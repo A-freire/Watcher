@@ -9,11 +9,8 @@ import SwiftUI
 import Kingfisher
 
 struct MoviesView: View {
-    let mashaArray = Array(repeating: "Masha", count: 100)
     @ObservedObject var gsManager = GridSizeManager(userDefaultsKey: "MoviesGrid")
     @ObservedObject var vm: MoviesVM
-    
-    
 
     init(serviceConfig: ServiceConfig) {
         self.vm = MoviesVM(radarr: serviceConfig)

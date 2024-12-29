@@ -30,12 +30,12 @@ class MoviesVM: ObservableObject {
         }
     }
     
-    func isSelected(id: Int) -> Bool {
-        eraseMode && delete.contains(id)
-    }
-    
     init(radarr: ServiceConfig) {
         self.radarr = radarr
+    }
+
+    func isSelected(id: Int) -> Bool {
+        eraseMode && delete.contains(id)
     }
     
     func getMovieStatus(id: Int) -> Status {
