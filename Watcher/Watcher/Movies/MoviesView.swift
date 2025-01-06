@@ -19,14 +19,18 @@ struct MoviesView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVGrid(columns: gsManager.selectedSize.gridItems) {
-                    ForEach(vm.searchedMovies, id: \.self) { movie in
-                        MovieCardView(movie: movie, status: vm.getMovieStatus(id: movie.getId), eraseMode: $vm.eraseMode)
-                            .simultaneousGesture(TapGesture().onEnded({ _ in
-                                vm.modifyDelete(id: movie.id)
-                            }), isEnabled: vm.eraseMode)
-                            .border(vm.isSelected(id: movie.getId) ? .red : .clear, width: 10)
+                if !vm.movies.isEmpty {
+                    LazyVGrid(columns: gsManager.selectedSize.gridItems) {
+                        ForEach(vm.searchedMovies, id: \.self) { movie in
+                            MovieCardView(movie: movie, status: vm.getMovieStatus(id: movie.getId), eraseMode: $vm.eraseMode)
+                                .simultaneousGesture(TapGesture().onEnded({ _ in
+                                    vm.modifyDelete(id: movie.id)
+                                }), isEnabled: vm.eraseMode)
+                                .border(vm.isSelected(id: movie.getId) ? .red : .clear, width: 10)
+                        }
                     }
+                } else {
+                    ProgressView()
                 }
             }
             .onAppear(perform: {

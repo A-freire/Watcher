@@ -78,8 +78,8 @@ class MoviesVM: ObservableObject {
 
     @MainActor func fetchInit() {
         Task {
-            await QueueManager.shared.getQueue(config: radarr)
             await fetchMovies()
+            await QueueManager.shared.getQueue(config: radarr)
             self.status = await QueueManager.shared.getDlStatus(movies: movies)
         }
     }
@@ -101,7 +101,7 @@ class MoviesVM: ObservableObject {
     
     @MainActor func deleteAll() {
         movies = movies.filter { !delete.contains($0.getId) }
-        QueueManager.shared.deleteFromQueue(config: radarr, ids: delete)
+        QueueManager.shared.deleteFromQueue(config: radarr, moviesID: delete)
         for id in delete {
             deleteMovie(id: id)
         }

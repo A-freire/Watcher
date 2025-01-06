@@ -34,22 +34,25 @@ actor QueueManager {
         }
     }
     
-    @MainActor func deleteFromQueue(config: ServiceConfig, ids: [Int]) {
+    @MainActor func deleteFromQueue(config: ServiceConfig, moviesID: [Int]) {
         guard !config.isEmpty else { return }
         
         var request = URLRequest(url: URL(string: "\(config.url)/api/v3/queue/bulk")!)
         request.httpMethod = "DELETE"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue(config.apiKey, forHTTPHeaderField: "Authorization")
-        do {
-            let jsonData = try JSONEncoder().encode(ids)
-            request.httpBody = jsonData
-        } catch {
-            print("Failed to encode JSON: \(error)")
-            return
-        }
+        
         Task {
+            await getQueue(config: config)
             do {
+                let ids = await queue.compactMap { record in
+                    if moviesID.contains(where: { $0 == record.getMovieId }) {
+                        return record.id
+                    }
+                    return nil
+                }
+                let jsonData = try JSONEncoder().encode(Bulk(ids: ids))
+                request.httpBody = jsonData
                 let (_, response) = try await URLSession.shared.data(for: request)
                 
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { print("Response error: deleteFromQueue"); return }
