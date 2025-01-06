@@ -56,11 +56,9 @@ class MoviesVM: ObservableObject {
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { return }
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: fetchMovies"); return }
 
-            movies = try JSONDecoder().decode([Movie].self, from: data)
-            
-            movies.sort { $0.getAdded > $1.getAdded }
+            movies = try JSONDecoder().decode([Movie].self, from: data).reversed()
         } catch {
             return
         }
@@ -124,7 +122,7 @@ class MoviesVM: ObservableObject {
             do {
                 let (_, response) = try await URLSession.shared.data(for: request)
                 
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { return }
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { print("Response error: deleteMovie"); return }
             } catch {
                 return
             }

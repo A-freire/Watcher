@@ -30,7 +30,7 @@ class SpaceLeftManager {
             do {
                 let (data, response) = try await URLSession.shared.data(for: request)
                 
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { return }
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { print("Response error: getSizeLeft"); return }
                 
                 let list = try JSONDecoder().decode([FreeSpace].self, from: data)
                 

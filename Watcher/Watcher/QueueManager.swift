@@ -23,7 +23,7 @@ actor QueueManager {
             do {
                 let (data, response) = try await URLSession.shared.data(for: request)
                 
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { return }
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { print("Response error: getQueue"); return }
                 
                 let list = try JSONDecoder().decode(Queue.self, from: data)
                 
@@ -52,7 +52,7 @@ actor QueueManager {
             do {
                 let (_, response) = try await URLSession.shared.data(for: request)
                 
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { return }
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { print("Response error: deleteFromQueue"); return }
             } catch {
                 return
             }
