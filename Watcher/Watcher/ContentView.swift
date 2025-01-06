@@ -17,7 +17,7 @@ struct ContentView: View {
                     MoviesView(serviceConfig: settingsVM.config.Radarr)
                 }
                 Tab("Shows", systemImage: "film") {
-                    ShowsView()
+                    ShowsView(serviceConfig: settingsVM.config.Sonarr)
                 }
                 Tab("Search", systemImage: "magnifyingglass") {
                     SearchView()

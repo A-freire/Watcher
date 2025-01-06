@@ -78,4 +78,30 @@ actor QueueManager {
         }
         return status
     }
+
+    func getDlStatus(shows: [Show]) -> [Int:Status] {
+        var status: [Int:Status] = [:]
+        for show in shows {
+            let queue = queue.contains(where: { $0.getSeriesId == show.id })
+
+            if !queue {
+                if show.getHasFiles && show.getEnded {
+                    status[show.id] = .downloaded
+                } else if show.getHasFiles && !show.getEnded {
+                    status[show.id] = .airing
+                } else if (!show.getHasFiles && show.getIsAvailable) {
+                    status[show.id] = .missing
+                } else {
+                    status[show.id] = .unavailable
+                }
+            } else {
+                status[show.id] = .queued
+            }
+        }
+        return status
+    }
+}
+
+struct Bulk: Codable {
+    let ids: [Int]
 }

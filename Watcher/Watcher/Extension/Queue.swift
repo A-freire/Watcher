@@ -17,7 +17,10 @@ struct Queue: Codable {
 }
 
 struct Record: Codable {
-  let movieId: Int?
+    let movieId: Int?
+    let seriesId: Int?
+    let episodeId: Int?
+    let id: Int
 }
 
 extension Queue {
@@ -31,4 +34,6 @@ extension Queue {
 
 extension Record {
     var getMovieId: Int { movieId ?? 0 }
+    var getSeriesId: Int { seriesId ?? 0 }
+    var getEpisodeId: Int { episodeId ?? 0 }
 }

@@ -6,30 +6,44 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct ShowsView: View {
-    let mashaArray = Array(repeating: "Masha", count: 100)
     @ObservedObject var gsManager = GridSizeManager(userDefaultsKey: "ShowsGrid")
-    @State var search: String = ""
-    @State var eraseMode: Bool = false
+    @ObservedObject var vm: ShowsVM
+
+    init(serviceConfig: ServiceConfig) {
+        self.vm = ShowsVM(sonarr: serviceConfig)
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVGrid(columns: gsManager.selectedSize.gridItems) {
-                    ForEach(mashaArray.indices, id: \.self) { index in
-                        ShowCardView(name: mashaArray[index])
+                if !vm.shows.isEmpty {
+                    LazyVGrid(columns: gsManager.selectedSize.gridItems) {
+                        ForEach(vm.searchedShows, id: \.self) { show in
+                            ShowCardView(vm: vm.initShowVM(show: show), status: vm.getShowStatus(id: show.id))
+                        }
                     }
+                } else {
+                    ProgressView()
                 }
             }
-            .searchable(text: $search, prompt: "Search")
+            .onAppear(perform: {
+                vm.fetchInit()
+                vm.getSizeLeft()
+            })
+            .refreshable(action: {
+                vm.fetchInit()
+            })
+            .searchable(text: $vm.search, prompt: "Search")
             .toolbar {
                 //TODO: eraseMode
                 ToolbarItem(placement: .topBarTrailing) {
                     Image(systemName: "trash")
-                        .foregroundStyle(eraseMode ? .red : .white)
+                        .foregroundStyle(vm.eraseMode ? .red : .white)
                         .onTapGesture {
-                            eraseMode.toggle()
+                            vm.eraseMode.toggle()
                         }
                 }
                 if UIDevice.current.userInterfaceIdiom == .pad {
@@ -41,7 +55,10 @@ struct ShowsView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Text("2259 GB left")
+                    Text("\(vm.spaceLeft) GB left")
+                        .onTapGesture {
+                            vm.getSizeLeft()
+                        }
                 }
             }
         }
@@ -50,15 +67,19 @@ struct ShowsView: View {
 
 
 struct ShowCardView: View {
-    let name: String
+    @ObservedObject var vm: ShowVM
+    let status: Status
     @State var isPresented: Bool = false
 
     var body: some View {
         VStack {
-            Image(name)
+            KFImage(vm.show.getPoster)
                 .resizable()
                 .scaledToFit()
-                .rotationEffect(.degrees(180))
+                .overlay(alignment: .bottomTrailing) {
+                    DotStatus(color: status.color)
+                        .padding(2)
+                }
         }
         .onTapGesture {
             withAnimation {
@@ -66,35 +87,37 @@ struct ShowCardView: View {
             }
         }
         .sheet(isPresented: $isPresented) {
-            ShowSheetView()
+            ShowSheetView(vm: vm, status: status)
         }
     }
 }
 
 struct ShowSheetView: View {
     @State private var isExpanded: Bool = false
+    @ObservedObject var vm: ShowVM
+    let status: Status
 
     var body: some View {
         VStack {
-            Image("wild")
+            KFImage(vm.show.getFanart)
                 .resizable()
                 .aspectRatio(contentMode: UIDevice.current.userInterfaceIdiom == .pad ? .fill : .fit)
                 .overlay(alignment: .bottom) {
                     ZStack(alignment: .bottom) {
                         LinearGradient(colors: [.gray.opacity(0.2), .clear], startPoint: .bottom, endPoint: .center)
-                        Text("American Pie presente : No limit !")
-                            .font(.system(size: 42))
+                        Text(vm.show.getTitle)
+                            .font(.system(size: 33))
                     }
                 }
             VStack(alignment:.leading, spacing: 12) {
                 HStack {
-                    Text("Duree: 1h42")
+                    Text(vm.show.getDuree)
                     Spacer()
-                    Text("Downloaded")
-                    DotStatus()
+                    Text(status.name)
+                    DotStatus(color: status.color)
                 }
-                Text("Genre:"+" Animation, Adventure, Comedy, Science Fiction, Action, Romance, Crime, Thriller")
-                Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit felis est, sed volutpat dui viverra quis. Aliquam mollis nisl ante, eget ultrices diam convallis a. Nam lorem enim, laoreet id porttitor ut, pellentesque a velit. Sed sit amet ipsum tempus, luctus ante ut, scelerisque orci. Aliquam posuere nunc sagittis.")
+                Text(vm.show.getStringGenre)
+                Text(vm.show.getOverview)
                     .lineLimit(isExpanded ? nil : 2)
                     .animation(.default, value: isExpanded)
                     .onTapGesture {
@@ -102,32 +125,38 @@ struct ShowSheetView: View {
                     }
             }
             .padding(.horizontal)
-//            List(<#T##data: Binding<MutableCollection & RandomAccessCollection>##Binding<MutableCollection & RandomAccessCollection>#>, children: <#T##WritableKeyPath<Identifiable, (MutableCollection & RandomAccessCollection)?>#>, rowContent: <#T##(Binding<Identifiable>) -> View#>)
-//            List(data, id: \.self) { truc in
-            List(0..<10) { i in
-                ShowEpSeasonView(index: i)
+//            List(show.getSeasons, children: \.episode) { row in
+//                ShowEpSeasonView(index: i)
+//            }
+            List(vm.show.getSeasons, id: \.self) { season in
+                ShowEpSeasonView(season: season) { sID in
+                    vm.monitorSeason(sID: sID)
+                }
             }
-            .listStyle(.plain)
+            .listStyle(.grouped)
             .scrollIndicators(.hidden)
+        }
+        .task {
+            await vm.fetchShow()
         }
     }
 }
 
 struct ShowEpSeasonView: View {
-    let index: Int
-    @State var isBookmarked: Bool = false
+    var season: Season
+    var onMonitoring: (Int) -> Void
     @State var showEp: Bool = false
 
     var body: some View {
         VStack {
             HStack {
-                Text("Season \(index)")
-                Text("13/13")
-                Text("68.98 GB")
+                Text("Season \(season.getSeasonNumber)")
+                Text(season.getTotEp)
+                Text(season.getSize)
                 Spacer()
-                Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                Image(systemName: season.getMonitored ? "bookmark.fill" : "bookmark")
                     .onTapGesture {
-                        isBookmarked.toggle()
+                        onMonitoring(season.getSeasonNumber)
                     }
                 Image(systemName: "trash")
                 Image(systemName: showEp ? "chevron.up" : "chevron.down")
@@ -141,7 +170,6 @@ struct ShowEpSeasonView: View {
                         Text("\($0)")
                     }
                 }
-                
             }
         }
     }
