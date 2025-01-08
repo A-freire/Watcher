@@ -65,7 +65,7 @@ extension Show {
     }
     
     var getSeasons: [Season] {
-        seasons?.filter({ $0.getSeasonNumber != 0 }) ?? []
+        seasons.filter({ $0.getSeasonNumber != 0 })
     }
     
     var getYear: Int {

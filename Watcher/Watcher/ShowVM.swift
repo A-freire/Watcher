@@ -38,9 +38,9 @@ class ShowVM: ObservableObject {
     }
     
     @MainActor func monitorSeason(sID: Int) {
-        let i = show.seasons!.firstIndex(where: { $0.getSeasonNumber == sID})!
+        let i = show.seasons.firstIndex(where: { $0.getSeasonNumber == sID})!
 
-        self.show.seasons![i].monitored?.toggle()
+        self.show.seasons[i].monitored?.toggle()
 
         var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/series/\(show.id)")!)
         request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
@@ -60,7 +60,7 @@ class ShowVM: ObservableObject {
 
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 202 else { print("Response error: monitorSeason 1"); return }
                 
-                if self.show.seasons![i].getMonitored {
+                if self.show.seasons[i].getMonitored {
                     let json = SeriesCommand(name: "SeriesSearch", seriesId: show.id)
                     req.httpBody = try JSONEncoder().encode(json)
                     

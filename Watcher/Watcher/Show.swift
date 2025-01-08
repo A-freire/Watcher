@@ -23,7 +23,7 @@ struct Show: Codable, Hashable {
     let images: [Cover]
     let languageProfileId: Int?
     let remotePoster: String?
-    var seasons: [Season]?
+    var seasons: [Season]
     let year: Int?
     let path: String?
     let qualityProfileId: Int?
@@ -65,7 +65,7 @@ struct AlternateTitleShow: Codable, Hashable {
 struct Season: Codable, Hashable {
     let seasonNumber: Int?
     var monitored: Bool?
-    let statistics: Statistics?
+    var statistics: Statistics?
     let images: [Cover]?
 }
 
