@@ -73,6 +73,35 @@ class ShowVM: ObservableObject {
             }
         }
     }
+    
+    @MainActor func deleteSeason(seasonNumber: Int) {
+        guard !sonarr.isEmpty else { return }
+
+        let json = EpisodeFile(episodeFileIds: episodes.compactMap({$0.seasonNumber == seasonNumber && $0.getEpisodeFileId != 0 ? $0.getEpisodeFileId : nil }))
+        
+        guard !json.episodeFileIds.isEmpty else { return }
+
+        var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/episodeFile/bulk")!)
+        request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
+        request.httpMethod = "DELETE"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        Task {
+            do {
+                
+                request.httpBody = try JSONEncoder().encode(json)
+                let (_, response) = try await URLSession.shared.data(for: request)
+                print(json)
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: deleteSeason"); return }
+                
+                guard let i = show.seasons.firstIndex(where: {$0.getSeasonNumber == seasonNumber}) else { return }
+                print("its done")
+                show.seasons[i].statistics = Statistics.default
+
+            } catch {
+                return
+            }
+        }
+    }
 
     @MainActor func fetchEpisodes() async {
         guard !sonarr.isEmpty else { return }
