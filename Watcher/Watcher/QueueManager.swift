@@ -103,6 +103,19 @@ actor QueueManager {
         }
         return status
     }
+
+    func hasEp(ep:Episode) -> Status {
+        let df = queue.contains(where: {$0.getEpisodeId == ep.id})
+        if df {
+            return Status.queued
+        } else if ep.getMonitored {
+            return Status.missing
+        } else if ep.getHasFile {
+            return Status.downloaded
+        } else {
+            return Status.unavailable
+        }
+    }
 }
 
 struct Bulk: Codable {

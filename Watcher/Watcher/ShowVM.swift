@@ -9,11 +9,16 @@ import Foundation
 
 class ShowVM: ObservableObject {
     @Published var show: Show
+    @Published var episodes: [Episode] = []
     private var sonarr: ServiceConfig
 
     init(show: Show, sonarr: ServiceConfig) {
         self.show = show
         self.sonarr = sonarr
+    }
+
+    func getEpSeason(number: Int) -> [Episode] {
+        episodes.filter({$0.seasonNumber == number})
     }
     
     @MainActor func fetchShow() async {
@@ -63,19 +68,35 @@ class ShowVM: ObservableObject {
                     
                     guard let httpResponse = resp as? HTTPURLResponse, httpResponse.statusCode == 201 else { print("Response error: monitorSeason 2"); return }
                 }
-//                let yo = try JSONDecoder().decode(Show.self, from: data)
-//                if let index = self.shows.firstIndex(where: { $0.id == yo.id }) {
-//                    self.shows[index] = yo
-//                }
             } catch {
                 return
             }
         }
     }
 
+    @MainActor func fetchEpisodes() async {
+        guard !sonarr.isEmpty else { return }
+        
+        var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/episode?seriesId=\(show.id)")!)
+        request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: fetchEpisodes"); return }
+
+            episodes = try JSONDecoder().decode([Episode].self, from: data)
+        } catch {
+            return
+        }
+    }
 }
 
 struct SeriesCommand: Codable {
     let name: String
     let seriesId: Int
+}
+
+struct EpisodeFile: Codable {
+    let episodeFileIds: [Int]
 }

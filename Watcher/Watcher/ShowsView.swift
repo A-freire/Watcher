@@ -125,12 +125,14 @@ struct ShowSheetView: View {
                     }
             }
             .padding(.horizontal)
-//            List(show.getSeasons, children: \.episode) { row in
-//                ShowEpSeasonView(index: i)
-//            }
             List(vm.show.getSeasons, id: \.self) { season in
-                ShowEpSeasonView(season: season) { sID in
-                    vm.monitorSeason(sID: sID)
+                ShowEpSeasonView(season: season, episodes: vm.getEpSeason(number: season.getSeasonNumber)) { sID, sNb  in
+                    if sID == -1 {
+                        vm.deleteSeason(seasonNumber: sNb)
+                    }
+                    if sNb == -1 {
+                        vm.monitorSeason(sID: sID)
+                    }
                 }
             }
             .listStyle(.grouped)
@@ -138,13 +140,15 @@ struct ShowSheetView: View {
         }
         .task {
             await vm.fetchShow()
+            await vm.fetchEpisodes()
         }
     }
 }
 
 struct ShowEpSeasonView: View {
     var season: Season
-    var onMonitoring: (Int) -> Void
+    var episodes: [Episode]
+    var onGesture: (Int, Int) -> Void
     @State var showEp: Bool = false
 
     var body: some View {
@@ -156,21 +160,38 @@ struct ShowEpSeasonView: View {
                 Spacer()
                 Image(systemName: season.getMonitored ? "bookmark.fill" : "bookmark")
                     .onTapGesture {
-                        onMonitoring(season.getSeasonNumber)
+                        onGesture(season.getSeasonNumber, -1)
                     }
                 Image(systemName: "trash")
+                    .onTapGesture {
+                        onGesture(-1, season.getSeasonNumber)
+                    }
                 Image(systemName: showEp ? "chevron.up" : "chevron.down")
             }
+            .contentShape(Rectangle())
             .onTapGesture {
                 showEp.toggle()
             }
             if showEp {
                 withAnimation(.easeInOut) {
-                    ForEach(0..<10) {
-                        Text("\($0)")
+                    ForEach(episodes, id: \.self) { ep in
+                        EpisodeRow(ep: ep)
                     }
                 }
             }
+        }
+    }
+}
+
+struct EpisodeRow: View {
+    let ep: Episode
+
+    var body: some View {
+        HStack {
+            Text("\(ep.getEpisodeNumber).")
+                .monospacedDigit()
+            Text(ep.getTitle)
+            Spacer()
         }
     }
 }
