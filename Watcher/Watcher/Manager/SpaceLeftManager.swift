@@ -1,5 +1,5 @@
 //
-//  FreeSpace.swift
+//  SpaceLeftManager.swift
 //  Watcher
 //
 //  Created by Adrien Freire on 21/12/2024.
