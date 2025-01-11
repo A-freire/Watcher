@@ -13,6 +13,8 @@ class ShowsVM: ObservableObject {
     @Published var eraseMode: Bool = false
     @Published var shows: [Show] = []
     @Published var status: [Int:Status] = [:]
+    @Published private var delete: [Int] = []
+    @Published var confirmErase: Bool = false
 
     private var sonarr: ServiceConfig
 
@@ -35,7 +37,7 @@ class ShowsVM: ObservableObject {
     func getShowStatus(id: Int) -> Status {
         return status[id] ?? .unavailable
     }
-
+    
     @MainActor func getSizeLeft() {
         SpaceLeftManager(config: sonarr).getSizeLeft { space in
             self.spaceLeft = space
@@ -68,5 +70,79 @@ class ShowsVM: ObservableObject {
     
     func initShowVM(show: Show) -> ShowVM {
         ShowVM(show: show, sonarr: sonarr)
+    }
+}
+
+extension ShowsVM {
+    func isSelected(id: Int) -> Bool {
+        eraseMode && delete.contains(id)
+    }
+
+    func modifyDelete(id: Int) {
+        if let i = delete.firstIndex(of: id) {
+            delete.remove(at: i)
+        } else {
+            delete.append(id)
+        }
+    }
+
+    func manageDelete() {
+        if !delete.isEmpty {
+            confirmErase.toggle()
+        }
+        eraseMode.toggle()
+    }
+    
+    @MainActor func deleteAll() {
+        QueueManager.shared.deleteFromQueue(config: sonarr,eps: delete)
+        for id in delete {
+            deleteShows(id: id)
+        }
+        freeDelete()
+    }
+
+    func freeDelete() {
+        delete = []
+    }
+
+    @MainActor private func deleteShows(id: Int) {
+        Task {
+            await fetchEpisodes(id: id)
+        }
+    }
+
+    @MainActor private func fetchEpisodes(id: Int) async {
+        guard !sonarr.isEmpty else { return }
+        
+        var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/episode?seriesId=\(id)")!)
+        request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
+
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: fetchEpisodes"); return }
+            let eps = try JSONDecoder().decode([Episode].self, from: data).compactMap({$0.getEpisodeFileId != 0 ? $0.getEpisodeFileId : nil })
+            guard !eps.isEmpty else { return }
+            await deleteSeason(eps: eps)
+        } catch {
+            return
+        }
+    }
+
+    @MainActor private func deleteSeason(eps: [Int]) async {
+        guard !sonarr.isEmpty else { return }
+
+        var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/episodeFile/bulk")!)
+        request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
+        request.httpMethod = "DELETE"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        do {
+            request.httpBody = try JSONEncoder().encode(EpisodeFile(episodeFileIds: eps))
+            let (_, response) = try await URLSession.shared.data(for: request)
+
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: deleteSeason"); return }
+        } catch {
+            return
+        }
     }
 }

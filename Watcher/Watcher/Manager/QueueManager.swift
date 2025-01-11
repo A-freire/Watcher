@@ -62,6 +62,34 @@ actor QueueManager {
         }
     }
 
+    @MainActor func deleteFromQueue(config: ServiceConfig, eps: [Int]) {
+        guard !config.isEmpty else { return }
+        
+        var request = URLRequest(url: URL(string: "\(config.url)/api/v3/queue/bulk")!)
+        request.httpMethod = "DELETE"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue(config.apiKey, forHTTPHeaderField: "Authorization")
+        
+        Task {
+            await getQueue(config: config)
+            do {
+                let ids = await queue.compactMap { record in
+                    if eps.contains(where: { $0 == record.getEpisodeId }) {
+                        return record.id
+                    }
+                    return nil
+                }
+                let jsonData = try JSONEncoder().encode(Bulk(ids: ids))
+                request.httpBody = jsonData
+                let (_, response) = try await URLSession.shared.data(for: request)
+                
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { print("Response error: deleteFromQueue"); return }
+            } catch {
+                return
+            }
+        }
+    }
+
     func getDlStatus(movies: [Movie]) -> [Int:Status] {
         var status: [Int:Status] = [:]
         for movie in movies {

@@ -94,7 +94,7 @@ class ShowVM: ObservableObject {
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: deleteSeason"); return }
                 
                 guard let i = show.seasons.firstIndex(where: {$0.getSeasonNumber == seasonNumber}) else { return }
-                print("its done")
+
                 show.seasons[i].statistics = Statistics.default
 
             } catch {
