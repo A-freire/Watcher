@@ -38,6 +38,7 @@ class SpaceLeftManager {
                 
                 completion(Int(space * 0.000000001))
             } catch {
+                print("getSizeLeft catch fail")
                 return
             }
         }

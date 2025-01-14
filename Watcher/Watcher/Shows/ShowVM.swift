@@ -33,6 +33,7 @@ class ShowVM: ObservableObject {
 
             show = try JSONDecoder().decode(Show.self, from: data)
         } catch {
+            print("fetchShow catch fail")
             return
         }
     }
@@ -63,12 +64,12 @@ class ShowVM: ObservableObject {
                 if self.show.seasons[i].getMonitored {
                     let json = SeriesCommand(name: "SeriesSearch", seriesId: show.id)
                     req.httpBody = try JSONEncoder().encode(json)
-                    
                     let (_, resp) = try await URLSession.shared.data(for: req)
                     
                     guard let httpResponse = resp as? HTTPURLResponse, httpResponse.statusCode == 201 else { print("Response error: monitorSeason 2"); return }
                 }
             } catch {
+                print("monitorSeason catch fail")
                 return
             }
         }
@@ -98,6 +99,7 @@ class ShowVM: ObservableObject {
                 show.seasons[i].statistics = Statistics.default
 
             } catch {
+                print("deleteSeason catch fail")
                 return
             }
         }
@@ -116,6 +118,7 @@ class ShowVM: ObservableObject {
 
             episodes = try JSONDecoder().decode([Episode].self, from: data)
         } catch {
+            print("fetchEpisodes catch fail")
             return
         }
     }

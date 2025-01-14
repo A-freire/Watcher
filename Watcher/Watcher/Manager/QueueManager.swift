@@ -29,6 +29,7 @@ actor QueueManager {
                 
                 queue = list.getRecords
             } catch {
+                print("getQueue catch fail")
                 return
             }
         }
@@ -57,6 +58,7 @@ actor QueueManager {
                 
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { print("Response error: deleteFromQueue"); return }
             } catch {
+                print("deleteFromQueue movies catch fail")
                 return
             }
         }
@@ -85,6 +87,7 @@ actor QueueManager {
                 
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { print("Response error: deleteFromQueue"); return }
             } catch {
+                print("deleteFromQueue shows catch fail")
                 return
             }
         }

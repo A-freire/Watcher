@@ -64,6 +64,7 @@ class ShowsVM: ObservableObject {
 
             shows = try JSONDecoder().decode([Show].self, from: data).reversed()
         } catch {
+            print("fetchShow catch fail")
             return
         }
     }
@@ -123,13 +124,14 @@ extension ShowsVM {
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: fetchEpisodes"); return }
             let eps = try JSONDecoder().decode([Episode].self, from: data).compactMap({$0.getEpisodeFileId != 0 ? $0.getEpisodeFileId : nil })
             guard !eps.isEmpty else { return }
-            await deleteSeason(eps: eps)
+            await deleteSeasons(eps: eps)
         } catch {
+            print("fetchEpisodes catch fail")
             return
         }
     }
 
-    @MainActor private func deleteSeason(eps: [Int]) async {
+    @MainActor private func deleteSeasons(eps: [Int]) async {
         guard !sonarr.isEmpty else { return }
 
         var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/episodeFile/bulk")!)
@@ -142,6 +144,7 @@ extension ShowsVM {
 
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: deleteSeason"); return }
         } catch {
+            print("deleteSeasons catch fail")
             return
         }
     }

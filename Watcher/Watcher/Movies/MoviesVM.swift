@@ -60,6 +60,7 @@ class MoviesVM: ObservableObject {
 
             movies = try JSONDecoder().decode([Movie].self, from: data).reversed()
         } catch {
+            print("fetchMovies catch fail")
             return
         }
     }
@@ -124,6 +125,7 @@ class MoviesVM: ObservableObject {
                 
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { print("Response error: deleteMovie"); return }
             } catch {
+                print("deleteMovie catch fail")
                 return
             }
         }
