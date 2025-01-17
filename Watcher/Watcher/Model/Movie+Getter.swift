@@ -16,10 +16,10 @@ extension Movie {
     var getSortTitle: String { sortTitle ?? "Unknown Sort Title" }
     var getSizeOnDisk: Int { sizeOnDisk ?? 0 }
     var getStatus: String { status ?? "Unknown Status" }
-    var getOverview: String { overview ?? "No Overview Available" }
-    var getInCinemas: String { inCinemas ?? "Unknown Date" }
-    var getPhysicalRelease: String { physicalRelease ?? "Unknown Date" }
-    var getDigitalRelease: String { digitalRelease ?? "Unknown Date" }
+    var getOverview: String { overview ?? "N/A" }
+    var getInCinemas: String { inCinemas ?? "N/A" }
+    var getPhysicalRelease: String { physicalRelease ?? "N/A" }
+    var getDigitalRelease: String { digitalRelease ?? "N/A" }
     var getImages: [Cover] { images }
     var getWebsite: String { website ?? "Unknown Website" }
     var getYear: Int { year ?? 0 }
@@ -44,7 +44,7 @@ extension Movie {
     var getRatings: Ratings { ratings ?? Ratings(votes: 0, value: 0.0) }
     var getMovieFile: MovieFile { movieFile ?? MovieFile.default }
     var getCollection: Collection { collection ?? Collection.default }
-    var getId: Int { id }
+    var getId: Int { id ?? 0 }
 }
 
 // MARK: - AlternateTitle
@@ -211,17 +211,21 @@ extension Collection {
 extension Movie {
     var getPoster: URL {
         let tmp = getImages.filter { $0.coverType == "poster" }
-        return tmp.first?.getRemoteUrl ?? URL(string: "https://papystreaming.black/uploads/posts/2018-03/1520187249_1469865155_no_poster.png")!
+        return tmp.first?.getRemoteUrl ?? URL(string: "https://www.cinemademinuit.fr/public/upload/movie/000/poster.jpg")!
 
     }
     var getFanArt: URL {
         let tmp = getImages.filter { $0.coverType == "fanart" }
-        return tmp.first?.getRemoteUrl ?? URL(string: "https://papystreaming.black/uploads/posts/2018-03/1520187249_1469865155_no_poster.png")!
+        return tmp.first?.getRemoteUrl ?? URL(string: "https://www.cinemademinuit.fr/public/upload/movie/000/poster.jpg")!
     }
     var getDuree: String {
         "Duree: \(getRuntime / 60)h\(getRuntime % 60)"
     }
     var getStringGenre: String {
         "Genres: " + getGenres.joined(separator: ", ")
+    }
+
+    var gotReleased: Bool {
+        !(getInCinemas == "N/A" && getPhysicalRelease == "N/A" && getDigitalRelease == "N/A" && getOverview == "N/A")
     }
 }

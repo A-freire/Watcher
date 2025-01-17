@@ -24,7 +24,7 @@ class ShowVM: ObservableObject {
     @MainActor func fetchShow() async {
         guard !sonarr.isEmpty else { return }
         
-        var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/series/\(show.id)")!)
+        var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/series/\(show.getId)")!)
         request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
@@ -43,7 +43,7 @@ class ShowVM: ObservableObject {
 
         self.show.seasons[i].monitored?.toggle()
 
-        var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/series/\(show.id)")!)
+        var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/series/\(show.getId)")!)
         request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
         request.httpMethod = "PUT"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -62,7 +62,7 @@ class ShowVM: ObservableObject {
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 202 else { print("Response error: monitorSeason 1"); return }
                 
                 if self.show.seasons[i].getMonitored {
-                    let json = SeriesCommand(name: "SeriesSearch", seriesId: show.id)
+                    let json = SeriesCommand(name: "SeriesSearch", seriesId: show.getId)
                     req.httpBody = try JSONEncoder().encode(json)
                     let (_, resp) = try await URLSession.shared.data(for: req)
                     
@@ -108,7 +108,7 @@ class ShowVM: ObservableObject {
     @MainActor func fetchEpisodes() async {
         guard !sonarr.isEmpty else { return }
         
-        var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/episode?seriesId=\(show.id)")!)
+        var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/episode?seriesId=\(show.getId)")!)
         request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
 
         do {

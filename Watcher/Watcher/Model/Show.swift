@@ -8,9 +8,9 @@
 import Foundation
 
 struct Show: Codable, Hashable {
-    let id: Int
+    let id: Int?
     let title: String?
-    let alternateTitles: [AlternateTitleShow]
+    let alternateTitles: [AlternateTitleShow]?
     let sortTitle: String?
     let status: String?
     let ended: Bool?

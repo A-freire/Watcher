@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - Movie
 struct Movie: Codable, Equatable, Hashable {
-    let id: Int
+    let id: Int?
     let title: String?
     let originalTitle: String?
     let alternateTitles: [AlternateTitle]

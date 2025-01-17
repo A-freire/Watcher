@@ -24,7 +24,7 @@ struct MoviesView: View {
                         ForEach(vm.searchedMovies, id: \.self) { movie in
                             MovieCardView(movie: movie, status: vm.getMovieStatus(id: movie.getId), eraseMode: $vm.eraseMode)
                                 .simultaneousGesture(TapGesture().onEnded({ _ in
-                                    vm.modifyDelete(id: movie.id)
+                                    vm.modifyDelete(id: movie.getId)
                                 }), isEnabled: vm.eraseMode)
                                 .border(vm.isSelected(id: movie.getId) ? .red : .clear, width: 10)
                         }

@@ -120,16 +120,16 @@ actor QueueManager {
 
             if !queue {
                 if show.getHasFiles && show.getEnded {
-                    status[show.id] = .downloaded
+                    status[show.getId] = .downloaded
                 } else if show.getHasFiles && !show.getEnded {
-                    status[show.id] = .airing
+                    status[show.getId] = .airing
                 } else if (!show.getHasFiles && show.getIsAvailable) {
-                    status[show.id] = .missing
+                    status[show.getId] = .missing
                 } else {
-                    status[show.id] = .unavailable
+                    status[show.getId] = .unavailable
                 }
             } else {
-                status[show.id] = .queued
+                status[show.getId] = .queued
             }
         }
         return status

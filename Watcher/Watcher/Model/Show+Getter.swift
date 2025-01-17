@@ -8,12 +8,16 @@
 import Foundation
 
 extension Show {
+    var getId: Int {
+        id ?? 0
+    }
+
     var getTitle: String {
         title ?? "Unknown Title"
     }
     
     var getAlternateTitles: [AlternateTitleShow] {
-        alternateTitles
+        alternateTitles ?? []
     }
     
     var getSortTitle: String {
@@ -33,7 +37,7 @@ extension Show {
     }
     
     var getOverview: String {
-        overview ?? "No Overview"
+        overview ?? "N/A"
     }
     
     var getNextAiring: String {
@@ -404,28 +408,27 @@ extension AddOptions {
 extension Show {
     var getPoster: URL {
         let tmp = getImages.filter { $0.coverType == "poster" }
-        return tmp.first?.getRemoteUrl ?? URL(string: "https://papystreaming.black/uploads/posts/2018-03/1520187249_1469865155_no_poster.png")!
-
+        return tmp.first?.getRemoteUrl ?? URL(string: "https://www.cinemademinuit.fr/public/upload/movie/000/poster.jpg")!
     }
     var getFanart: URL {
         let tmp = getImages.filter { $0.coverType == "fanart" }
-        return tmp.first?.getRemoteUrl ?? URL(string: "https://papystreaming.black/uploads/posts/2018-03/1520187249_1469865155_no_poster.png")!
-
+        return tmp.first?.getRemoteUrl ?? URL(string: "https://www.cinemademinuit.fr/public/upload/movie/000/poster.jpg")!
     }
     var getBanner: URL {
         let tmp = getImages.filter { $0.coverType == "banner" }
-        return tmp.first?.getRemoteUrl ?? URL(string: "https://papystreaming.black/uploads/posts/2018-03/1520187249_1469865155_no_poster.png")!
-
+        return tmp.first?.getRemoteUrl ?? URL(string: "https://www.cinemademinuit.fr/public/upload/movie/000/poster.jpg")!
     }
     var getUnknown: URL {
         let tmp = getImages.filter { $0.coverType == "unknown" }
-        return tmp.first?.getRemoteUrl ?? URL(string: "https://papystreaming.black/uploads/posts/2018-03/1520187249_1469865155_no_poster.png")!
-
+        return tmp.first?.getRemoteUrl ?? URL(string: "https://www.cinemademinuit.fr/public/upload/movie/000/poster.jpg")!
     }
     var getDuree: String {
         "Duree: \(getRuntime / 60)h\(getRuntime % 60)"
     }
     var getStringGenre: String {
         "Genres: " + getGenres.joined(separator: ", ")
+    }
+    var gotReleased: Bool {
+        !(getOverview == "N/A")
     }
 }

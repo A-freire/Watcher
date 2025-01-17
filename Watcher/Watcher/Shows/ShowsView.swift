@@ -22,11 +22,11 @@ struct ShowsView: View {
                 if !vm.shows.isEmpty {
                     LazyVGrid(columns: gsManager.selectedSize.gridItems) {
                         ForEach(vm.searchedShows, id: \.self) { show in
-                            ShowCardView(vm: vm.initShowVM(show: show), eraseMode: $vm.eraseMode, status: vm.getShowStatus(id: show.id))
+                            ShowCardView(vm: vm.initShowVM(show: show), eraseMode: $vm.eraseMode, status: vm.getShowStatus(id: show.getId))
                                 .simultaneousGesture(TapGesture().onEnded({ _ in
-                                    vm.modifyDelete(id: show.id)
+                                    vm.modifyDelete(id: show.getId)
                                 }), isEnabled: vm.eraseMode)
-                                .border(vm.isSelected(id: show.id) ? .red : .clear, width: 10)
+                                .border(vm.isSelected(id: show.getId) ? .red : .clear, width: 10)
                         }
                     }
                 } else {
