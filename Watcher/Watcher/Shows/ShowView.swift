@@ -43,9 +43,10 @@ struct ShowSheetView: View {
             .padding(.horizontal)
             List(vm.show.getSeasons, id: \.self) { season in
                 ShowEpSeasonView(season: season, episodes: vm.getEpSeason(number: season.getSeasonNumber)) { sID, delete  in
-                    vm.monitorSeason(sID: sID)
                     if delete {
                         vm.deleteSeason(seasonNumber: sID)
+                    } else {
+                        vm.monitorSeason(sID: sID)
                     }
                 }
             }
