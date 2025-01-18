@@ -88,3 +88,15 @@ struct AddOptions: Codable, Hashable {
     let searchForMissingEpisodes: Bool?
     let searchForCutoffUnmetEpisodes: Bool?
 }
+
+struct AddShow: Codable {
+    let tvdbId: Int
+    let title: String
+    let qualityProfileId: Int
+    let titleSlug: String
+    let images: [Cover]
+    let seasons: [Season]
+    let languageProfileId: Int
+    let path: String
+    let monitored: Bool
+}
