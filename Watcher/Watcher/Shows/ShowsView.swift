@@ -33,6 +33,7 @@ struct ShowsView: View {
                     ProgressView()
                 }
             }
+            .scrollDismissesKeyboard(.immediately)
             .onAppear(perform: {
                 vm.fetchInit()
                 vm.getSizeLeft()
