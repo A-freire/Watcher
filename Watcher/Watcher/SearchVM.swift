@@ -53,7 +53,7 @@ class SearchVM: ObservableObject {
         }
     }
     
-    @MainActor func fetchMovies() async {
+    func fetchMovies() async {
         guard !radarr.isEmpty else { return }
         
         var request = URLRequest(url: URL(string: "\(radarr.url)/api/v3/movie/lookup?term=\(search)")!)
@@ -69,7 +69,7 @@ class SearchVM: ObservableObject {
             return
         }
     }    
-    @MainActor func fetchShows() async {
+    func fetchShows() async {
         guard !sonarr.isEmpty else { return }
         
         var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/series/lookup?term=\(search)")!)
@@ -85,4 +85,119 @@ class SearchVM: ObservableObject {
             return
         }
     }
+    
+    func addMovie(movie: Movie) {
+        guard !radarr.isEmpty else { return }
+        
+        var request = URLRequest(url: URL(string: "\(radarr.url)/api/v3/movie")!)
+        request.addValue(radarr.apiKey, forHTTPHeaderField: "Authorization")
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        Task {
+            do {
+                request.httpBody = try JSONEncoder().encode(movie.copyToAdd())
+
+                let (data, response) = try await URLSession.shared.data(for: request)
+                
+                if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 201 {
+                    let statusCode = httpResponse.statusCode
+                    let errorMessage = String(data: data, encoding: .utf8) ?? "No error message"
+                    
+                    print("❌ Response error: addMovie - Code: \(statusCode) - Message: \(errorMessage)")
+                    return
+                }
+                let mov = try JSONDecoder().decode(Movie.self, from: data)
+                movies = movies.compactMap({ if $0 == movie { return mov }; return $0 })
+                await commandMovie(id: mov.getId)
+            } catch {
+                print("❌ addMovie catch fail")
+                return
+            }
+        }
+    }
+    func commandMovie(id: Int) async {
+        guard !radarr.isEmpty else { return }
+        
+        var request = URLRequest(url: URL(string: "\(radarr.url)/api/v3/command")!)
+        request.addValue(radarr.apiKey, forHTTPHeaderField: "Authorization")
+        request.httpMethod = "POST"
+        do {
+            request.httpBody = try JSONEncoder().encode(MoviesCommand(name: "MoviesSearch", movieIds: [id]))
+
+            let (data, response) = try await URLSession.shared.data(for: request)
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 201 {
+                let statusCode = httpResponse.statusCode
+                let errorMessage = String(data: data, encoding: .utf8) ?? "No error message"
+                
+                print("❌ Response error: addMovie - Code: \(statusCode) - Message: \(errorMessage)")
+                return
+            }
+            
+        } catch {
+            print("commandMovie catch fail")
+            return
+        }
+    }
+    
+    func addShow(show: Show) {
+        guard !sonarr.isEmpty else { return }
+        
+        var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/series")!)
+        request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
+        request.httpMethod = "POST"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        Task {
+            do {
+                print(show.copyToAdd())
+                request.httpBody = try JSONEncoder().encode(show.copyToAdd())
+
+                let (data, response) = try await URLSession.shared.data(for: request)
+                
+                if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 201 {
+                    let statusCode = httpResponse.statusCode
+                    let errorMessage = String(data: data, encoding: .utf8) ?? "No error message"
+                    
+                    print("❌ Response error: addShow - Code: \(statusCode) - Message: \(errorMessage)")
+                    return
+                }
+                let cho = try JSONDecoder().decode(Show.self, from: data)
+                shows = shows.map({ if $0 == show { return cho }; return $0 })
+                await commandShow(id: cho.getId)
+            } catch {
+                print("❌ addShow catch fail")
+                return
+            }
+        }
+    }
+    func commandShow(id: Int) async {
+        guard !sonarr.isEmpty else { return }
+        
+        var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/command")!)
+        request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
+        request.httpMethod = "POST"
+        do {
+            request.httpBody = try JSONEncoder().encode(SeriesCommand(name: "SeriesSearch", seriesId: id))
+
+            let (data, response) = try await URLSession.shared.data(for: request)
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 201 {
+                let statusCode = httpResponse.statusCode
+                let errorMessage = String(data: data, encoding: .utf8) ?? "No error message"
+                
+                print("❌ Response error: addMovie - Code: \(statusCode) - Message: \(errorMessage)")
+                return
+            }
+            
+        } catch {
+            print("commandMovie catch fail")
+            return
+        }
+    }
+
+}
+
+struct MoviesCommand: Codable {
+    let name: String
+    let movieIds: [Int]
 }

@@ -29,11 +29,25 @@ struct SearchView: View {
                         switch vm.data {
                         case .movies(let movies):
                             ForEach(movies , id: \.self) { movie in
-                                SearchCardView(data: .movie(movie))
+                                SearchCardView(data: .movie(movie)) { data in
+                                    switch data {
+                                    case .movie(let movie):
+                                        vm.addMovie(movie: movie)
+                                    default:
+                                        break
+                                    }
+                                }
                             }
                         case .shows(let shows):
                             ForEach(shows , id: \.self) { show in
-                                SearchCardView(data: .show(show))
+                                SearchCardView(data: .show(show)) { data in
+                                    switch data {
+                                    case .show(let show):
+                                        vm.addShow(show: show)
+                                    default:
+                                        break
+                                    }
+                                }
                             }
                         default:
                             EmptyView()
@@ -99,6 +113,7 @@ struct SearchModeView: View {
 struct SearchCardView: View {
     let data: SearchParam
     @State var isPresented: Bool = false
+    var onAdd: (SearchParam) -> Void
 
     var body: some View {
         VStack {
@@ -106,23 +121,75 @@ struct SearchCardView: View {
             case .movie(let movie):
                 KFImage(movie.getPoster)
                     .resizable()
-                    .scaledToFit()
-                Spacer()
-                Text(movie.getTitle)
-                    .lineLimit(1)
+                    .overlay(content: {
+                        if isPresented {
+                            Color.black.opacity(0.5)
+                            VStack {
+                                Text(movie.getTitle)
+                                Spacer()
+                                HStack {
+                                    Button {
+                                        print("movie HD")
+                                        onAdd(.movie(movie))
+                                    } label: {
+                                        Image(systemName: movie.getId != 0 ? "checkmark" : "plus")
+                                            .padding()
+                                            .background(.gray.opacity(0.2))
+                                            .foregroundColor(.white)
+                                            .cornerRadius(8)
+                                    }
+                                    .background(.black)
+                                    .cornerRadius(8)
+                                    .disabled(movie.getId != 0)
+                                }
+                                .opacity(isPresented ? 1 : 0)
+                                .offset(y: isPresented ? 0 : 20)
+                                .animation(.spring(response: 0.4, dampingFraction: 0.6), value: isPresented)
+                            }
+                        }
+                    })
             case .show(let show):
                 KFImage(show.getPoster)
                     .resizable()
-                    .scaledToFit()
-                Spacer()
-                Text(show.getTitle)
-                    .lineLimit(1)
+                    .overlay {
+                        if isPresented {
+                            Color.black.opacity(0.5)
+                            VStack {
+                                Spacer()
+                                Text(show.getTitle)
+                                    .font(.title)
+                                Spacer()
+                                HStack {
+                                    Button {
+                                        print("show hd")
+                                        onAdd(.show(show))
+                                    } label: {
+                                        Image(systemName: show.getId != 0 ? "checkmark" : "plus")
+                                            .padding()
+                                            .background(.gray.opacity(0.2))
+                                            .foregroundColor(.white)
+                                            .cornerRadius(8)
+                                    }
+                                    .background(.black)
+                                    .cornerRadius(8)
+                                    .disabled(show.getId != 0)
+                                }
+                                .opacity(isPresented ? 1 : 0)
+                                .offset(y: isPresented ? 0 : 20)
+                                .animation(.spring(response: 0.4, dampingFraction: 0.6), value: isPresented)
+                            }
+                        }
+
+                    }
             default:
                 EmptyView()
             }
         }
+        .scaledToFit()
         .onTapGesture {
-            isPresented.toggle()
+            withAnimation {
+                isPresented.toggle()
+            }
         }
     }
 }
