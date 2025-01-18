@@ -27,7 +27,7 @@ extension Movie {
     var getYouTubeTrailerId: String { youTubeTrailerId ?? "No Trailer ID" }
     var getStudio: String { studio ?? "Unknown Studio" }
     var getPath: String { path ?? "Unknown Path" }
-    var getQualityProfileId: Int { qualityProfileId ?? 0 }
+    var getQualityProfileId: Int { qualityProfileId ?? 1 }
     var getMonitored: Bool { monitored ?? false }
     var getMinimumAvailability: String { minimumAvailability ?? "Unknown" }
     var getIsAvailable: Bool { isAvailable ?? false }
@@ -224,8 +224,52 @@ extension Movie {
     var getStringGenre: String {
         "Genres: " + getGenres.joined(separator: ", ")
     }
-
     var gotReleased: Bool {
         !(getInCinemas == "N/A" && getPhysicalRelease == "N/A" && getDigitalRelease == "N/A" && getOverview == "N/A")
+    }
+    var getNewPath: String {
+        "/movies/\(getOriginalTitle) (\(getYear)) Default"
+    }
+    
+    func copyToAdd() -> Movie {
+        return Movie(
+            id: self.getId,
+            title: self.title,
+            originalTitle: self.originalTitle,
+            alternateTitles: self.alternateTitles,
+            secondaryYear: self.secondaryYear,
+            secondaryYearSourceId: self.secondaryYearSourceId,
+            sortTitle: self.sortTitle,
+            sizeOnDisk: self.sizeOnDisk,
+            status: self.status,
+            overview: self.overview,
+            inCinemas: self.inCinemas,
+            physicalRelease: self.physicalRelease,
+            digitalRelease: self.digitalRelease,
+            images: self.images,
+            website: self.website,
+            year: self.year,
+            hasFile: self.hasFile,
+            youTubeTrailerId: self.youTubeTrailerId,
+            studio: self.studio,
+            path: getNewPath,
+            qualityProfileId: 1,
+            monitored: true,
+            minimumAvailability: self.minimumAvailability,
+            isAvailable: self.isAvailable,
+            folderName: self.folderName,
+            runtime: self.runtime,
+            cleanTitle: self.cleanTitle,
+            imdbId: self.imdbId,
+            tmdbId: self.tmdbId,
+            titleSlug: self.titleSlug,
+            certification: self.certification,
+            genres: self.genres,
+            tags: self.tags,
+            added: self.added,
+            ratings: self.ratings,
+            movieFile: self.movieFile,
+            collection: self.collection
+        )
     }
 }
