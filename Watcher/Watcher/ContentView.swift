@@ -20,7 +20,7 @@ struct ContentView: View {
                     ShowsView(serviceConfig: settingsVM.config.Sonarr)
                 }
                 Tab("Search", systemImage: "magnifyingglass") {
-                    SearchView()
+                    SearchView(radarr: settingsVM.config.Radarr, sonarr: settingsVM.config.Sonarr)
                 }
             }
             
