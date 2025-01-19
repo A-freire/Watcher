@@ -65,18 +65,6 @@ class MoviesVM: ObservableObject {
         }
     }
 
-//    @MainActor func refreshQueue() {
-//        Task {
-//            await QueueManager.shared.getQueue(config: radarr)
-//        }
-//    }
-//
-//    @MainActor func refreshStatus() {
-//        Task {
-//            self.status = await QueueManager.shared.getDlStatus(movies: movies)
-//        }
-//    }
-
     @MainActor func fetchInit() {
         Task {
             await fetchMovies()
