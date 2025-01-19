@@ -94,10 +94,14 @@ extension ShowsVM {
         eraseMode.toggle()
     }
     
-    @MainActor func deleteAll() {
-        QueueManager.shared.deleteFromQueue(config: sonarr,eps: delete)
+    @MainActor func deleteAll(erase: Bool) {
+        QueueManager.shared.deleteFromQueue(config: sonarr, eps: delete)
         for id in delete {
             deleteShows(id: id)
+            if erase {
+                shows = shows.filter { !delete.contains($0.getId) }
+                eraseShow(id: id)
+            }
         }
         freeDelete()
     }
@@ -112,7 +116,7 @@ extension ShowsVM {
         }
     }
 
-    @MainActor private func fetchEpisodes(id: Int) async {
+    private func fetchEpisodes(id: Int) async {
         guard !sonarr.isEmpty else { return }
         
         var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/episode?seriesId=\(id)")!)
@@ -131,7 +135,7 @@ extension ShowsVM {
         }
     }
 
-    @MainActor private func deleteSeasons(eps: [Int]) async {
+    private func deleteSeasons(eps: [Int]) async {
         guard !sonarr.isEmpty else { return }
 
         var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/episodeFile/bulk")!)
@@ -146,6 +150,24 @@ extension ShowsVM {
         } catch {
             print("deleteSeasons catch fail")
             return
+        }
+    }
+    
+    @MainActor func eraseShow(id: Int) {
+        guard !sonarr.isEmpty else { return }
+
+        var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/series/\(id)?deleteFiles=true")!)
+        request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
+        request.httpMethod = "DELETE"
+        Task {
+            do {
+                let (_, response) = try await URLSession.shared.data(for: request)
+
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: eraseShow"); return }
+            } catch {
+                print("eraseShow catch fail")
+                return
+            }
         }
     }
 }

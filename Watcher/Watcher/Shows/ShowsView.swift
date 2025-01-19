@@ -66,8 +66,9 @@ struct ShowsView: View {
                         }
                 }
             }
-            .alert("Are you sure you want to delete all seasons from those shows ?", isPresented: $vm.confirmErase, actions: {
-                Button("OK", role: .destructive) { vm.deleteAll() }
+            .alert("Do you want to erase the shows or emptying them ?", isPresented: $vm.confirmErase, actions: {
+                Button("Empty", role: .destructive) { vm.deleteAll(erase: false) }
+                Button("Erase", role: .destructive) { vm.deleteAll(erase: true) }
                 Button("Cancel", role: .cancel) { vm.freeDelete() }
             })
         }
