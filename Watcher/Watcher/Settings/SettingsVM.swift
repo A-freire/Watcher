@@ -76,13 +76,44 @@ class SettingsVM: ObservableObject {
             // Écriture du fichier JSON
             try jsonString.write(to: fileURL, atomically: true, encoding: .utf8)
             
-            // Présentation de la feuille de partage pour télécharger
+            // Vérification si le fichier a bien été créé
+            guard FileManager.default.fileExists(atPath: fileURL.path) else {
+                print("⚠️ Le fichier JSON n'a pas été correctement créé.")
+                return
+            }
+            
+            // Présentation de la feuille de partage
             let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
-            if let topController = UIApplication.shared.windows.first?.rootViewController {
+            
+            if let topController = getTopViewController() {
+                // 🛑 Fix pour éviter le crash sur iPad
+                if let popoverController = activityVC.popoverPresentationController {
+                    popoverController.sourceView = topController.view
+                    popoverController.sourceRect = CGRect(x: topController.view.bounds.midX, y: topController.view.bounds.midY, width: 0, height: 0)
+                    popoverController.permittedArrowDirections = []
+                }
+                
                 topController.present(activityVC, animated: true, completion: nil)
+            } else {
+                print("⚠️ Impossible de trouver un contrôleur valide pour présenter l'activité.")
             }
         } catch {
-            print("Erreur lors de la création du fichier JSON: \(error)")
+            print("❌ Erreur lors de la création du fichier JSON: \(error)")
         }
+    }
+
+    // Fonction utilitaire pour récupérer le contrôleur actuellement affiché
+    @MainActor func getTopViewController() -> UIViewController? {
+        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = scene.windows.first,
+              let rootViewController = window.rootViewController else {
+            return nil
+        }
+        
+        var topController: UIViewController = rootViewController
+        while let presentedViewController = topController.presentedViewController {
+            topController = presentedViewController
+        }
+        return topController
     }
 }
