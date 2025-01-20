@@ -126,6 +126,9 @@ struct SearchCardView: View {
                             Color.black.opacity(0.5)
                             VStack {
                                 Text(movie.getTitle)
+                                    .font(.title3)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding([.top, .horizontal], 8)
                                 Spacer()
                                 HStack {
                                     Button {
@@ -141,6 +144,7 @@ struct SearchCardView: View {
                                     .background(.black)
                                     .cornerRadius(8)
                                     .disabled(movie.getId != 0)
+                                    .padding(.bottom, 8)
                                 }
                                 .opacity(isPresented ? 1 : 0)
                                 .offset(y: isPresented ? 0 : 20)
@@ -155,9 +159,10 @@ struct SearchCardView: View {
                         if isPresented {
                             Color.black.opacity(0.5)
                             VStack {
-                                Spacer()
                                 Text(show.getTitle)
-                                    .font(.title)
+                                    .font(.title3)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding([.top, .horizontal], 8)
                                 Spacer()
                                 HStack {
                                     Button {
@@ -173,13 +178,13 @@ struct SearchCardView: View {
                                     .background(.black)
                                     .cornerRadius(8)
                                     .disabled(show.getId != 0)
+                                    .padding(.bottom, 8)
                                 }
                                 .opacity(isPresented ? 1 : 0)
                                 .offset(y: isPresented ? 0 : 20)
                                 .animation(.spring(response: 0.4, dampingFraction: 0.6), value: isPresented)
                             }
                         }
-
                     }
             default:
                 EmptyView()
