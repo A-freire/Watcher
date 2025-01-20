@@ -13,5 +13,6 @@
    ```bash
    git clone https://github.com/A-freire/Watcher.git
    cd Watcher
+   ```
 
 **Via l\'appStore** : Sellour
