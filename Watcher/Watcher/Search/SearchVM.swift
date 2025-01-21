@@ -26,8 +26,8 @@ class SearchVM: ObservableObject {
         }
         return .movies(movies)
     }
-    
-    private var currentTask: Task<Void, Never>? = nil
+
+    private var currentTask: Task<Void, Never>?
     private var radarr: ServiceConfig
     private var sonarr: ServiceConfig
 
@@ -38,13 +38,13 @@ class SearchVM: ObservableObject {
 
     func debounceInput() {
         currentTask?.cancel()
-        
+
         currentTask = Task {
             try? await Task.sleep(nanoseconds: 200_000_000)
-            
+
             guard !Task.isCancelled else { return }
 
-            switch state{
+            switch state {
             case true:
                 await fetchShows()
             case false:
@@ -52,32 +52,42 @@ class SearchVM: ObservableObject {
             }
         }
     }
-    
+
     func fetchMovies() async {
         guard !radarr.isEmpty else { return }
-        
+
         var request = URLRequest(url: URL(string: "\(radarr.url)/api/v3/movie/lookup?term=\(search)")!)
         request.addValue(radarr.apiKey, forHTTPHeaderField: "Authorization")
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: fetchMovies"); return }
+
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                print(
+                    "Response error: fetchMovies"
+                ); return
+            }
+
             let datas = try JSONDecoder().decode([Movie].self, from: data)
             movies = datas.filter({ $0.gotReleased })
         } catch {
             print("fetchMovies catch fail")
             return
         }
-    }    
+    }
+
     func fetchShows() async {
         guard !sonarr.isEmpty else { return }
-        
+
         var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/series/lookup?term=\(search)")!)
         request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: fetchMovies"); return }
+
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                print(
+                    "Response error: fetchMovies"
+                ); return
+            }
             let datas = try JSONDecoder().decode([Show].self, from: data)
             shows = datas.filter({ $0.gotReleased })
         } catch {
@@ -85,10 +95,10 @@ class SearchVM: ObservableObject {
             return
         }
     }
-    
+
     func addMovie(movie: Movie) {
         guard !radarr.isEmpty else { return }
-        
+
         var request = URLRequest(url: URL(string: "\(radarr.url)/api/v3/movie")!)
         request.addValue(radarr.apiKey, forHTTPHeaderField: "Authorization")
         request.httpMethod = "POST"
@@ -99,11 +109,11 @@ class SearchVM: ObservableObject {
                 request.httpBody = try JSONEncoder().encode(movie.copyToAdd())
 
                 let (data, response) = try await URLSession.shared.data(for: request)
-                
+
                 if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 201 {
                     let statusCode = httpResponse.statusCode
                     let errorMessage = String(data: data, encoding: .utf8) ?? "No error message"
-                    
+
                     print("❌ Response error: addMovie - Code: \(statusCode) - Message: \(errorMessage)")
                     return
                 }
@@ -116,9 +126,10 @@ class SearchVM: ObservableObject {
             }
         }
     }
+
     func commandMovie(id: Int) async {
         guard !radarr.isEmpty else { return }
-        
+
         var request = URLRequest(url: URL(string: "\(radarr.url)/api/v3/command")!)
         request.addValue(radarr.apiKey, forHTTPHeaderField: "Authorization")
         request.httpMethod = "POST"
@@ -129,20 +140,20 @@ class SearchVM: ObservableObject {
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 201 {
                 let statusCode = httpResponse.statusCode
                 let errorMessage = String(data: data, encoding: .utf8) ?? "No error message"
-                
+
                 print("❌ Response error: addMovie - Code: \(statusCode) - Message: \(errorMessage)")
                 return
             }
-            
+
         } catch {
             print("commandMovie catch fail")
             return
         }
     }
-    
+
     func addShow(show: Show) {
         guard !sonarr.isEmpty else { return }
-        
+
         var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/series")!)
         request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
         request.httpMethod = "POST"
@@ -154,11 +165,11 @@ class SearchVM: ObservableObject {
                 request.httpBody = try JSONEncoder().encode(show.copyToAdd())
 
                 let (data, response) = try await URLSession.shared.data(for: request)
-                
+
                 if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 201 {
                     let statusCode = httpResponse.statusCode
                     let errorMessage = String(data: data, encoding: .utf8) ?? "No error message"
-                    
+
                     print("❌ Response error: addShow - Code: \(statusCode) - Message: \(errorMessage)")
                     return
                 }
@@ -173,7 +184,7 @@ class SearchVM: ObservableObject {
     }
     func commandShow(id: Int) async {
         guard !sonarr.isEmpty else { return }
-        
+
         var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/command")!)
         request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
         request.httpMethod = "POST"
@@ -184,11 +195,11 @@ class SearchVM: ObservableObject {
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 201 {
                 let statusCode = httpResponse.statusCode
                 let errorMessage = String(data: data, encoding: .utf8) ?? "No error message"
-                
+
                 print("❌ Response error: addMovie - Code: \(statusCode) - Message: \(errorMessage)")
                 return
             }
-            
+
         } catch {
             print("commandMovie catch fail")
             return

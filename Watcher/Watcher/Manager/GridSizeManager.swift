@@ -48,7 +48,7 @@ enum Size: String, CaseIterable {
         case .big: return .small
         }
     }
-    
+
     var gridItems: [GridItem] {
         switch self {
         case .small:
@@ -59,7 +59,7 @@ enum Size: String, CaseIterable {
             return Array(repeating: GridItem(.flexible()), count: 9)
         }
     }
-    
+
     var gridImage: String {
         switch self {
         case .small:

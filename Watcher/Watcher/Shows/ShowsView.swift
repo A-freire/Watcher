@@ -10,6 +10,7 @@ import Kingfisher
 
 struct ShowsView: View {
     @ObservedObject var gsManager = GridSizeManager(userDefaultsKey: "ShowsGrid")
+    // swiftlint:disable:next identifier_name
     @ObservedObject var vm: ShowsVM
 
     init(serviceConfig: ServiceConfig) {
@@ -22,7 +23,15 @@ struct ShowsView: View {
                 if !vm.shows.isEmpty {
                     LazyVGrid(columns: gsManager.selectedSize.gridItems) {
                         ForEach(vm.searchedShows, id: \.self) { show in
-                            ShowCardView(vm: vm.initShowVM(show: show), eraseMode: $vm.eraseMode, status: vm.getShowStatus(id: show.getId))
+                            ShowCardView(
+                                vm: vm.initShowVM(
+                                    show: show
+                                ),
+                                eraseMode: $vm.eraseMode,
+                                status: vm.getShowStatus(
+                                    id: show.getId
+                                )
+                            )
                                 .simultaneousGesture(TapGesture().onEnded({ _ in
                                     vm.modifyDelete(id: show.getId)
                                 }), isEnabled: vm.eraseMode)
@@ -43,7 +52,6 @@ struct ShowsView: View {
             })
             .searchable(text: $vm.search, prompt: "Search")
             .toolbar {
-                //TODO: eraseMode
                 ToolbarItem(placement: .topBarTrailing) {
                     Image(systemName: "trash")
                         .foregroundStyle(vm.eraseMode ? .red : .white)
@@ -75,8 +83,8 @@ struct ShowsView: View {
     }
 }
 
-
 struct ShowCardView: View {
+    // swiftlint:disable:next identifier_name
     @ObservedObject var vm: ShowVM
     @Binding var eraseMode: Bool
     let status: Status

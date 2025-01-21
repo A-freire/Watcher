@@ -10,6 +10,7 @@ import Kingfisher
 
 struct MoviesView: View {
     @ObservedObject var gsManager = GridSizeManager(userDefaultsKey: "MoviesGrid")
+    // swiftlint:disable:next identifier_name
     @ObservedObject var vm: MoviesVM
 
     init(serviceConfig: ServiceConfig) {
@@ -22,7 +23,11 @@ struct MoviesView: View {
                 if !vm.movies.isEmpty {
                     LazyVGrid(columns: gsManager.selectedSize.gridItems) {
                         ForEach(vm.searchedMovies, id: \.self) { movie in
-                            MovieCardView(movie: movie, status: vm.getMovieStatus(id: movie.getId), eraseMode: $vm.eraseMode)
+                            MovieCardView(
+                                movie: movie,
+                                status: vm.getMovieStatus(id: movie.getId),
+                                eraseMode: $vm.eraseMode
+                            )
                                 .simultaneousGesture(TapGesture().onEnded({ _ in
                                     vm.modifyDelete(id: movie.getId)
                                 }), isEnabled: vm.eraseMode)
@@ -113,13 +118,22 @@ struct MovieSheetView: View {
                 .scaledToFit()
                 .overlay(alignment: .bottom) {
                     ZStack(alignment: .bottom) {
-                        LinearGradient(colors: [Color.colorFromHex("1C1C1E"), .clear], startPoint: .bottom, endPoint: .center)
+                        LinearGradient(
+                            colors: [
+                                Color.colorFromHex(
+                                    "1C1C1E"
+                                ),
+                                .clear
+                            ],
+                            startPoint: .bottom,
+                            endPoint: .center
+                        )
                         Text(movie.getTitle)
                             .font(.system(size: 33))
                             .padding(.horizontal)
                     }
                 }
-            VStack(alignment:.leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text(movie.getDuree)
                     Spacer()

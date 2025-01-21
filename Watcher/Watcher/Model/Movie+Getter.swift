@@ -63,7 +63,7 @@ extension AlternateTitle {
 extension Language {
     var getId: Int { id ?? 0 }
     var getName: String { name ?? "Unknown Language" }
-    
+
     static var `default`: Language {
         return Language(id: 0, name: "Unknown Language")
     }
@@ -125,7 +125,7 @@ extension MovieFile {
 extension Quality {
     var getQuality: QualityDetail { quality ?? QualityDetail.default }
     var getRevision: Revision { revision ?? Revision.default }
-    
+
     static var `default`: Quality {
         return Quality(quality: QualityDetail.default, revision: Revision.default)
     }
@@ -138,7 +138,7 @@ extension QualityDetail {
     var getSource: String { source ?? "Unknown Source" }
     var getResolution: Int { resolution ?? 0 }
     var getModifier: String { modifier ?? "None" }
-    
+
     static var `default`: QualityDetail {
         return QualityDetail(id: 0, name: "Unknown Quality", source: "Unknown Source", resolution: 0, modifier: "None")
     }
@@ -149,7 +149,7 @@ extension Revision {
     var getVersion: Int { version ?? 0 }
     var getReal: Int { real ?? 0 }
     var getIsRepack: Bool { isRepack ?? false }
-    
+
     static var `default`: Revision {
         return Revision(version: 0, real: 0, isRepack: false)
     }
@@ -171,7 +171,7 @@ extension MediaInfo {
     var getRunTime: String { runTime ?? "0:00:00" }
     var getScanType: String { scanType ?? "Unknown" }
     var getSubtitles: String { subtitles ?? "None" }
-    
+
     static var `default`: MediaInfo {
         return MediaInfo(
             audioAdditionalFeatures: "None",
@@ -211,12 +211,16 @@ extension Collection {
 extension Movie {
     var getPoster: URL {
         let tmp = getImages.filter { $0.coverType == "poster" }
-        return tmp.first?.getRemoteUrl ?? URL(string: "https://www.cinemademinuit.fr/public/upload/movie/000/poster.jpg")!
+        return tmp.first?.getRemoteUrl ?? URL(
+            string: "https://www.cinemademinuit.fr/public/upload/movie/000/poster.jpg"
+        )!
 
     }
     var getFanArt: URL {
         let tmp = getImages.filter { $0.coverType == "fanart" }
-        return tmp.first?.getRemoteUrl ?? URL(string: "https://www.cinemademinuit.fr/public/upload/movie/000/poster.jpg")!
+        return tmp.first?.getRemoteUrl ?? URL(
+            string: "https://www.cinemademinuit.fr/public/upload/movie/000/poster.jpg"
+        )!
     }
     var getDuree: String {
         "Duree: \(getRuntime / 60)h\(getRuntime % 60)"
@@ -230,7 +234,7 @@ extension Movie {
     var getNewPath: String {
         "/movies/\(getOriginalTitle) (\(getYear)) Default"
     }
-    
+
     func copyToAdd() -> Movie {
         return Movie(
             id: self.getId,

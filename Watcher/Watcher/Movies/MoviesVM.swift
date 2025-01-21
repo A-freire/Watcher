@@ -14,10 +14,10 @@ class MoviesVM: ObservableObject {
     @Published var confirmErase: Bool = false
     @Published var movies: [Movie] = []
     @Published private var delete: [Int] = []
-    @Published var status: [Int:Status] = [:]
-    
+    @Published var status: [Int: Status] = [:]
+
     private var radarr: ServiceConfig
-    
+
     var searchedMovies: [Movie] {
         guard !search.isEmpty else { return movies }
         return movies.filter { movie in
@@ -29,7 +29,7 @@ class MoviesVM: ObservableObject {
             return false
         }
     }
-    
+
     init(radarr: ServiceConfig) {
         self.radarr = radarr
     }
@@ -37,7 +37,7 @@ class MoviesVM: ObservableObject {
     func isSelected(id: Int) -> Bool {
         eraseMode && delete.contains(id)
     }
-    
+
     func getMovieStatus(id: Int) -> Status {
         return status[id] ?? .unavailable
     }
@@ -50,13 +50,17 @@ class MoviesVM: ObservableObject {
 
     @MainActor private func fetchMovies() async {
         guard !radarr.isEmpty else { return }
-        
+
         var request = URLRequest(url: URL(string: "\(radarr.url)/api/v3/movie")!)
         request.addValue(radarr.apiKey, forHTTPHeaderField: "Authorization")
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: fetchMovies"); return }
+
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                print(
+                    "Response error: fetchMovies"
+                ); return
+            }
 
             movies = try JSONDecoder().decode([Movie].self, from: data).reversed()
         } catch {
@@ -81,13 +85,13 @@ class MoviesVM: ObservableObject {
     }
 
     func modifyDelete(id: Int) {
-        if let i = delete.firstIndex(of: id) {
-            delete.remove(at: i)
+        if let index = delete.firstIndex(of: id) {
+            delete.remove(at: index)
         } else {
             delete.append(id)
         }
     }
-    
+
     @MainActor func deleteAll() {
         movies = movies.filter { !delete.contains($0.getId) }
         QueueManager.shared.deleteFromQueue(config: radarr, moviesID: delete)
@@ -103,15 +107,19 @@ class MoviesVM: ObservableObject {
 
     func deleteMovie(id: Int) {
         guard !radarr.isEmpty else { return }
-        
+
         var request = URLRequest(url: URL(string: "\(radarr.url)/api/v3/movie/\(id)?deleteFiles=true")!)
         request.httpMethod = "DELETE"
         request.addValue(radarr.apiKey, forHTTPHeaderField: "Authorization")
         Task {
             do {
                 let (_, response) = try await URLSession.shared.data(for: request)
-                
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else { print("Response error: deleteMovie"); return }
+
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    print(
+                        "Response error: deleteMovie"
+                    ); return
+                }
             } catch {
                 print("deleteMovie catch fail")
                 return

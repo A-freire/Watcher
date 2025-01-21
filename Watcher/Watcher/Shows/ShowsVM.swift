@@ -12,7 +12,7 @@ class ShowsVM: ObservableObject {
     @Published var search: String = ""
     @Published var eraseMode: Bool = false
     @Published var shows: [Show] = []
-    @Published var status: [Int:Status] = [:]
+    @Published var status: [Int: Status] = [:]
     @Published private var delete: [Int] = []
     @Published var confirmErase: Bool = false
 
@@ -29,7 +29,7 @@ class ShowsVM: ObservableObject {
             return false
         }
     }
-    
+
     init(sonarr: ServiceConfig) {
         self.sonarr = sonarr
     }
@@ -37,7 +37,7 @@ class ShowsVM: ObservableObject {
     func getShowStatus(id: Int) -> Status {
         return status[id] ?? .unavailable
     }
-    
+
     @MainActor func getSizeLeft() {
         SpaceLeftManager(config: sonarr).getSizeLeft { space in
             self.spaceLeft = space
@@ -54,13 +54,17 @@ class ShowsVM: ObservableObject {
 
     @MainActor private func fetchShows() async {
         guard !sonarr.isEmpty else { return }
-        
+
         var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/series")!)
         request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: fetchShows"); return }
+
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                print(
+                    "Response error: fetchShows"
+                ); return
+            }
 
             shows = try JSONDecoder().decode([Show].self, from: data).reversed()
         } catch {
@@ -68,7 +72,7 @@ class ShowsVM: ObservableObject {
             return
         }
     }
-    
+
     func initShowVM(show: Show) -> ShowVM {
         ShowVM(show: show, sonarr: sonarr)
     }
@@ -80,8 +84,8 @@ extension ShowsVM {
     }
 
     func modifyDelete(id: Int) {
-        if let i = delete.firstIndex(of: id) {
-            delete.remove(at: i)
+        if let index = delete.firstIndex(of: id) {
+            delete.remove(at: index)
         } else {
             delete.append(id)
         }
@@ -93,7 +97,7 @@ extension ShowsVM {
         }
         eraseMode.toggle()
     }
-    
+
     @MainActor func deleteAll(erase: Bool) {
         QueueManager.shared.deleteFromQueue(config: sonarr, eps: delete)
         for id in delete {
@@ -118,15 +122,27 @@ extension ShowsVM {
 
     private func fetchEpisodes(id: Int) async {
         guard !sonarr.isEmpty else { return }
-        
+
         var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/episode?seriesId=\(id)")!)
         request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
 
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: fetchEpisodes"); return }
-            let eps = try JSONDecoder().decode([Episode].self, from: data).compactMap({$0.getEpisodeFileId != 0 ? $0.getEpisodeFileId : nil })
+
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                print(
+                    "Response error: fetchEpisodes"
+                ); return
+            }
+
+            let eps = try JSONDecoder().decode(
+                [Episode].self,
+                from: data
+            ).compactMap(
+                {
+                    $0.getEpisodeFileId != 0 ? $0.getEpisodeFileId : nil
+                })
+
             guard !eps.isEmpty else { return }
             await deleteSeasons(eps: eps)
         } catch {
@@ -146,13 +162,17 @@ extension ShowsVM {
             request.httpBody = try JSONEncoder().encode(EpisodeFile(episodeFileIds: eps))
             let (_, response) = try await URLSession.shared.data(for: request)
 
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: deleteSeason"); return }
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                print(
+                    "Response error: deleteSeason"
+                ); return
+            }
         } catch {
             print("deleteSeasons catch fail")
             return
         }
     }
-    
+
     @MainActor func eraseShow(id: Int) {
         guard !sonarr.isEmpty else { return }
 
@@ -163,7 +183,11 @@ extension ShowsVM {
             do {
                 let (_, response) = try await URLSession.shared.data(for: request)
 
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: eraseShow"); return }
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    print(
+                        "Response error: eraseShow"
+                    ); return
+                }
             } catch {
                 print("eraseShow catch fail")
                 return

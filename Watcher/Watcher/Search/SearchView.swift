@@ -10,6 +10,7 @@ import Kingfisher
 
 struct SearchView: View {
     @ObservedObject var gsm = GridSizeManager(userDefaultsKey: "SearchGrid")
+    // swiftlint:disable:next identifier_name
     @ObservedObject var vm: SearchVM
 
     init(radarr: ServiceConfig, sonarr: ServiceConfig) {
@@ -28,7 +29,7 @@ struct SearchView: View {
                     LazyVGrid(columns: gsm.selectedSize.gridItems) {
                         switch vm.data {
                         case .movies(let movies):
-                            ForEach(movies , id: \.self) { movie in
+                            ForEach(movies, id: \.self) { movie in
                                 SearchCardView(data: .movie(movie)) { data in
                                     switch data {
                                     case .movie(let movie):
@@ -39,7 +40,7 @@ struct SearchView: View {
                                 }
                             }
                         case .shows(let shows):
-                            ForEach(shows , id: \.self) { show in
+                            ForEach(shows, id: \.self) { show in
                                 SearchCardView(data: .show(show)) { data in
                                     switch data {
                                     case .show(let show):
@@ -52,7 +53,7 @@ struct SearchView: View {
                         default:
                             EmptyView()
                         }
-                        
+
                     }
                 }
                 .scrollDismissesKeyboard(.immediately)
@@ -75,7 +76,6 @@ struct SearchView: View {
                 }
             }
         }
-        
     }
 }
 
@@ -88,7 +88,7 @@ struct SearchModeView: View {
                 .frame(width: 84, height: 44) // Taille du bouton
                 .offset(x: state ? -37 : 42) // Position dynamique
                 .animation(.easeInOut(duration: 0.3), value: state)
-            HStack(spacing: 20){
+            HStack(spacing: 20) {
                 Button(action: {
                     withAnimation {
                         state.toggle()
@@ -205,4 +205,3 @@ enum SearchParam {
     case shows([Show])
     case show(Show)
 }
-

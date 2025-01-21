@@ -8,26 +8,27 @@
 import SwiftUI
 
 struct SettingsView: View {
+    // swiftlint:disable:next identifier_name
     @EnvironmentObject var vm: SettingsVM
-    
+
     var body: some View {
         VStack {
-            VStack(alignment: .leading, spacing: 10){
-                Section("Radarr"){
-                    TextField("Api key", text: $vm.config.Radarr.apiKey)
-                    TextField("Url", text: $vm.config.Radarr.url)
+            VStack(alignment: .leading, spacing: 10) {
+                Section("Radarr") {
+                    TextField("Api key", text: $vm.config.radarr.apiKey)
+                    TextField("Url", text: $vm.config.radarr.url)
                 }
-                Section("Sabnzbd"){
-                    TextField("Api key", text: $vm.config.Sabnzbd.apiKey)
-                    TextField("Url", text: $vm.config.Sabnzbd.url)
+                Section("Sabnzbd") {
+                    TextField("Api key", text: $vm.config.sabnzbd.apiKey)
+                    TextField("Url", text: $vm.config.sabnzbd.url)
                 }
-                Section("Sonarr"){
-                    TextField("Api key", text: $vm.config.Sonarr.apiKey)
-                    TextField("Url", text: $vm.config.Sonarr.url)
+                Section("Sonarr") {
+                    TextField("Api key", text: $vm.config.sonarr.apiKey)
+                    TextField("Url", text: $vm.config.sonarr.url)
                 }
             }
             .padding()
-            
+
             VStack {
                 HStack {
                     OptionsView(image: vm.isLocked ? "lock" : "lock.open", text: vm.isLocked ? "Saved" : "Save")

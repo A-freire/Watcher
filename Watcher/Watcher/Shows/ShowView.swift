@@ -10,6 +10,7 @@ import Kingfisher
 
 struct ShowSheetView: View {
     @State private var isExpanded: Bool = false
+    // swiftlint:disable:next identifier_name
     @ObservedObject var vm: ShowVM
     let status: Status
 
@@ -25,7 +26,7 @@ struct ShowSheetView: View {
                             .font(.system(size: 33))
                     }
                 }
-            VStack(alignment:.leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text(vm.show.getDuree)
                     Spacer()
@@ -42,7 +43,12 @@ struct ShowSheetView: View {
             }
             .padding(.horizontal)
             List(vm.show.getSeasons, id: \.self) { season in
-                ShowEpSeasonView(season: season, episodes: vm.getEpSeason(number: season.getSeasonNumber)) { sID, delete  in
+                ShowEpSeasonView(
+                    season: season,
+                    episodes: vm.getEpSeason(
+                        number: season.getSeasonNumber
+                    )
+                ) { sID, delete  in
                     if delete {
                         vm.deleteSeason(seasonNumber: sID)
                     } else {
@@ -89,8 +95,8 @@ struct ShowEpSeasonView: View {
             }
             if showEp {
                 withAnimation(.easeInOut) {
-                    ForEach(episodes, id: \.self) { ep in
-                        EpisodeRow(ep: ep)
+                    ForEach(episodes, id: \.self) { epi in
+                        EpisodeRow(epi: epi)
                     }
                 }
             }
@@ -99,13 +105,13 @@ struct ShowEpSeasonView: View {
 }
 
 struct EpisodeRow: View {
-    let ep: Episode
+    let epi: Episode
 
     var body: some View {
         HStack {
-            Text("\(ep.getEpisodeNumber).")
+            Text("\(epi.getEpisodeNumber).")
                 .monospacedDigit()
-            Text(ep.getTitle)
+            Text(epi.getTitle)
             Spacer()
         }
     }

@@ -16,10 +16,10 @@ struct ServiceConfig: Codable {
 }
 
 struct Config: Codable {
-    var Radarr: ServiceConfig
-    var Sabnzbd: ServiceConfig
-    var Sonarr: ServiceConfig
+    var radarr: ServiceConfig
+    var sabnzbd: ServiceConfig
+    var sonarr: ServiceConfig
     var isEmpty: Bool {
-        Radarr.isEmpty || Sabnzbd.isEmpty || Sonarr.isEmpty
+        radarr.isEmpty || sabnzbd.isEmpty || sonarr.isEmpty
     }
 }

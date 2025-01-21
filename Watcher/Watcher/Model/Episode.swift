@@ -27,47 +27,47 @@ extension Episode {
     var getSeriesId: Int {
         seriesId ?? 0
     }
-    
+
     var getEpisodeFileId: Int {
         episodeFileId ?? 0
     }
-    
+
     var getSeasonNumber: Int {
         seasonNumber ?? 0
     }
-    
+
     var getEpisodeNumber: Int {
         episodeNumber ?? 0
     }
-    
+
     var getTitle: String {
         title ?? "Unknown Title"
     }
-    
+
     var getAirDate: String {
         airDate ?? "Unknown Air Date"
     }
-    
+
     var getAirDateUtc: String {
         airDateUtc ?? "Unknown UTC Date"
     }
-    
+
     var getOverview: String {
         overview ?? "No Overview"
     }
-    
+
     var getHasFile: Bool {
         hasFile ?? false
     }
-    
+
     var getMonitored: Bool {
         monitored ?? false
     }
-    
+
     var getAbsoluteEpisodeNumber: Int {
         absoluteEpisodeNumber ?? 0
     }
-    
+
     var getUnverifiedSceneNumbering: Bool {
         unverifiedSceneNumbering ?? false
     }

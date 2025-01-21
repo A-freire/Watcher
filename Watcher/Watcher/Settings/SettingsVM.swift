@@ -12,13 +12,26 @@ class SettingsVM: ObservableObject {
     @Published var config: Config
     @Published var pickFile: Bool = false
     @Published var isLocked: Bool = false
-    
+
     private let userDefaultsKey = "ConfigData"
 
     init() {
-        self.config =  Config(Radarr: ServiceConfig(apiKey: "", url: ""), Sabnzbd: ServiceConfig(apiKey: "", url: ""), Sonarr: ServiceConfig(apiKey: "", url: ""))
+        self.config =  Config(
+            radarr: ServiceConfig(
+                apiKey: "",
+                url: ""
+            ),
+            sabnzbd: ServiceConfig(
+                apiKey: "",
+                url: ""
+            ),
+            sonarr: ServiceConfig(
+                apiKey: "",
+                url: ""
+            )
+        )
     }
-    
+
     func parseConfig(from fileURL: URL) {
         guard fileURL.startAccessingSecurityScopedResource() else { return }
         defer { fileURL.stopAccessingSecurityScopedResource() }
@@ -34,7 +47,7 @@ class SettingsVM: ObservableObject {
             return
         }
     }
-    
+
     func saveConfigToUserDefaults() {
         guard !config.isEmpty, !isLocked else { return }
         do {
@@ -47,7 +60,7 @@ class SettingsVM: ObservableObject {
             print("Erreur lors de l'encodage de la configuration: \(error)")
         }
     }
-    
+
     func loadConfigFromUserDefaults() {
         guard let data = UserDefaults.standard.data(forKey: userDefaultsKey) else { return }
         do {
@@ -57,9 +70,22 @@ class SettingsVM: ObservableObject {
             print("Erreur lors du décodage de la configuration: \(error)")
         }
     }
-    
+
     func deleteAll() {
-        config = Config(Radarr: ServiceConfig(apiKey: "", url: ""), Sabnzbd: ServiceConfig(apiKey: "", url: ""), Sonarr: ServiceConfig(apiKey: "", url: ""))
+        config = Config(
+            radarr: ServiceConfig(
+                apiKey: "",
+                url: ""
+            ),
+            sabnzbd: ServiceConfig(
+                apiKey: "",
+                url: ""
+            ),
+            sonarr: ServiceConfig(
+                apiKey: "",
+                url: ""
+            )
+        )
         isLocked.toggle()
         UserDefaults.standard.removeObject(forKey: userDefaultsKey)
     }
@@ -68,31 +94,36 @@ class SettingsVM: ObservableObject {
         do {
             let jsonData = try JSONEncoder().encode(config)
             let jsonString = String(data: jsonData, encoding: .utf8) ?? ""
-            
+
             // Création de l'URL temporaire
             let tempDirectory = FileManager.default.temporaryDirectory
             let fileURL = tempDirectory.appendingPathComponent(fileName)
-            
+
             // Écriture du fichier JSON
             try jsonString.write(to: fileURL, atomically: true, encoding: .utf8)
-            
+
             // Vérification si le fichier a bien été créé
             guard FileManager.default.fileExists(atPath: fileURL.path) else {
                 print("⚠️ Le fichier JSON n'a pas été correctement créé.")
                 return
             }
-            
+
             // Présentation de la feuille de partage
             let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
-            
+
             if let topController = getTopViewController() {
                 // 🛑 Fix pour éviter le crash sur iPad
                 if let popoverController = activityVC.popoverPresentationController {
                     popoverController.sourceView = topController.view
-                    popoverController.sourceRect = CGRect(x: topController.view.bounds.midX, y: topController.view.bounds.midY, width: 0, height: 0)
+                    popoverController.sourceRect = CGRect(
+                        x: topController.view.bounds.midX,
+                        y: topController.view.bounds.midY,
+                        width: 0,
+                        height: 0
+                    )
                     popoverController.permittedArrowDirections = []
                 }
-                
+
                 topController.present(activityVC, animated: true, completion: nil)
             } else {
                 print("⚠️ Impossible de trouver un contrôleur valide pour présenter l'activité.")
@@ -109,7 +140,7 @@ class SettingsVM: ObservableObject {
               let rootViewController = window.rootViewController else {
             return nil
         }
-        
+
         var topController: UIViewController = rootViewController
         while let presentedViewController = topController.presentedViewController {
             topController = presentedViewController

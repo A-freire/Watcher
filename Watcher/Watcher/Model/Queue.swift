@@ -11,7 +11,7 @@ struct Queue: Codable {
     let page: Int
     let pageSize: Int
     let sortKey: String?
-    let sortDirection: String //[ default, ascending, descending ]
+    let sortDirection: String // [ default, ascending, descending ]
     let totalRecords: Int
     let records: [Record]?
 }

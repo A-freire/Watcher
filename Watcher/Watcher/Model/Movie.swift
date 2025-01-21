@@ -144,5 +144,3 @@ struct Collection: Codable, Equatable, Hashable {
     let tmdbId: Int?
     let images: [Cover]
 }
-
-

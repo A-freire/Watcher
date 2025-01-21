@@ -20,16 +20,20 @@ class ShowVM: ObservableObject {
     func getEpSeason(number: Int) -> [Episode] {
         episodes.filter({$0.seasonNumber == number})
     }
-    
+
     @MainActor func fetchShow() async {
         guard !sonarr.isEmpty else { return }
-        
+
         var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/series/\(show.getId)")!)
         request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: fetchShow"); return }
+
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                print(
+                    "Response error: fetchShow"
+                ); return
+            }
 
             show = try JSONDecoder().decode(Show.self, from: data)
         } catch {
@@ -37,17 +41,17 @@ class ShowVM: ObservableObject {
             return
         }
     }
-    
-    @MainActor func monitorSeason(sID: Int) {
-        let i = show.seasons.firstIndex(where: { $0.getSeasonNumber == sID})!
 
-        self.show.seasons[i].monitored?.toggle()
+    @MainActor func monitorSeason(sID: Int) {
+        let index = show.seasons.firstIndex(where: { $0.getSeasonNumber == sID})!
+
+        self.show.seasons[index].monitored?.toggle()
 
         var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/series/\(show.getId)")!)
         request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
         request.httpMethod = "PUT"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        
+
         var req = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/command")!)
         req.httpMethod = "POST"
         req.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
@@ -56,17 +60,25 @@ class ShowVM: ObservableObject {
             do {
                 let json = try JSONEncoder().encode(self.show)
                 request.httpBody = json
-                
+
                 let (_, response) = try await URLSession.shared.data(for: request)
 
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 202 else { print("Response error: monitorSeason 1"); return }
-                
-                if self.show.seasons[i].getMonitored {
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 202 else {
+                    print(
+                        "Response error: monitorSeason 1"
+                    ); return
+                }
+
+                if self.show.seasons[index].getMonitored {
                     let json = SeriesCommand(name: "SeriesSearch", seriesId: show.getId)
                     req.httpBody = try JSONEncoder().encode(json)
                     let (_, resp) = try await URLSession.shared.data(for: req)
-                    
-                    guard let httpResponse = resp as? HTTPURLResponse, httpResponse.statusCode == 201 else { print("Response error: monitorSeason 2"); return }
+
+                    guard let httpResponse = resp as? HTTPURLResponse, httpResponse.statusCode == 201 else {
+                        print(
+                            "Response error: monitorSeason 2"
+                        ); return
+                    }
                 }
             } catch {
                 print("monitorSeason catch fail")
@@ -74,12 +86,17 @@ class ShowVM: ObservableObject {
             }
         }
     }
-    
+
     @MainActor func deleteSeason(seasonNumber: Int) {
         guard !sonarr.isEmpty else { return }
 
-        let json = EpisodeFile(episodeFileIds: episodes.compactMap({$0.seasonNumber == seasonNumber && $0.getEpisodeFileId != 0 ? $0.getEpisodeFileId : nil }))
-        
+        let json = EpisodeFile(
+            episodeFileIds: episodes.compactMap(
+                {
+                    $0.seasonNumber == seasonNumber && $0.getEpisodeFileId != 0 ? $0.getEpisodeFileId : nil
+                })
+        )
+
         guard !json.episodeFileIds.isEmpty else { return }
 
         var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/episodeFile/bulk")!)
@@ -88,15 +105,19 @@ class ShowVM: ObservableObject {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         Task {
             do {
-                
+
                 request.httpBody = try JSONEncoder().encode(json)
                 let (_, response) = try await URLSession.shared.data(for: request)
                 print(json)
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: deleteSeason"); return }
-                
-                guard let i = show.seasons.firstIndex(where: {$0.getSeasonNumber == seasonNumber}) else { return }
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    print(
+                        "Response error: deleteSeason"
+                    ); return
+                }
 
-                show.seasons[i].statistics = Statistics.default
+                guard let index = show.seasons.firstIndex(where: {$0.getSeasonNumber == seasonNumber}) else { return }
+
+                show.seasons[index].statistics = Statistics.default
 
             } catch {
                 print("deleteSeason catch fail")
@@ -107,14 +128,18 @@ class ShowVM: ObservableObject {
 
     @MainActor func fetchEpisodes() async {
         guard !sonarr.isEmpty else { return }
-        
+
         var request = URLRequest(url: URL(string: "\(sonarr.url)/api/v3/episode?seriesId=\(show.getId)")!)
         request.addValue(sonarr.apiKey, forHTTPHeaderField: "Authorization")
 
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {  print("Response error: fetchEpisodes"); return }
+
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                print(
+                    "Response error: fetchEpisodes"
+                ); return
+            }
 
             episodes = try JSONDecoder().decode([Episode].self, from: data)
         } catch {
