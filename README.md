@@ -15,4 +15,4 @@
    cd Watcher
    ```
 
-**Via l\'appStore** : Sellour
+**Via l\'appStore** : [Sellour](https://apps.apple.com/fr/app/sellour/id6740770255)
